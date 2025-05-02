@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marcador de Asistencia</title>
+    <link href="https://fonts.googleapis.com/css2?family=Abel&family=Koukhmer+Sleokchher&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/Marcador.css">
+</head>
+<body>                   
+
+    <div id="alertContainer" class="alert-container"></div>
+    <div class="container py-4">
+        <div class=" title-container text-center mb-4">
+            <h1 class="titulo">ABCD</h1>
+            <h2 class="subtitulo">ASISTENCIA</h2>
+        </div> 
+        <div id="liveAlertPlaceholder"></div>
+        <div class="input-container d-flex align-items-center w-100 mb-3">
+            <div class="circle">
+                <img src="./img/us.png" alt="image" class="img-fluid">
+            </div>
+            <input type="text" id="id-input" class="form-control w-70 me-1" placeholder="ID EMPLEADO">
+            <button id="submit-btn" class="btn btn-primary"><span class="arrow"></span></button>
+        </div>
+        <p class="descripcion mb-3">Ingresar ID de asistencia</p>
+        <a href="./pages/IniciarSesion.html" class="login-link">Iniciar sesión</a>
+    </div>
+  <script src="./script/bootstrap.bundle.min.js"></script></body>
+    <script src="/script/Marcador.js"></script>
+</html>
