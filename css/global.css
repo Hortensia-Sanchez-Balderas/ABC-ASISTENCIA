@@ -1,0 +1,326 @@
+
+:root {
+	--header-height: 3rem;
+	--nav-width: 59px;
+	--first-color: #444242;
+	--first-color-light: #ababab;
+	--white-color: #F7F6FB;
+	--purple-color: rgba(18, 12, 195, 0.64);
+	--body-font: 'Abel', sans-serif;
+	--normal-font-size: 1rem;
+	--z-fixed: 100
+}
+
+
+body {
+	position: relative;
+	margin: var(--header-height) 0 0 0;
+	padding: 0 1rem;
+	font-family: var(--body-font);
+	font-size: var(--normal-font-size);
+	transition: .5s;
+	background-color: #C1E1F4;
+}
+
+a {
+	text-decoration: none
+}
+
+.header {
+	width: 100%;
+	height: var(--header-height);
+	position: fixed;
+	top: 0;
+	left: 0;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	padding: 0 1rem;
+	background-color: var(--purple-color);
+	z-index: var(--z-fixed);
+	transition: .5s
+}
+
+.header i {
+	font-size: 32px;
+	color: var(--white-color);
+}
+
+.header_toggle {
+	color: var(--first-color);
+	font-size: 1.5rem;
+	cursor: pointer
+}
+
+.header_profile {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 8px;
+	overflow: hidden;
+	padding: 0 8px;
+}
+
+.header_profile p {
+	margin: 0;
+	color: var(--white-color);
+}
+
+.header_profile img {
+	width: 40px
+}
+
+.l-navbar {
+	position: fixed;
+	top: 0;
+	left: -30%;
+	width: var(--nav-width);
+	height: 100vh;
+	background-color: var(--first-color);
+	transition: .5s;
+	z-index: var(--z-fixed)
+}
+
+.nav {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	overflow: hidden;
+	background-color: inherit;
+}
+
+.nav_logo,
+.nav_link {
+	display: grid;
+	grid-template-columns: max-content max-content;
+	align-items: center;
+	column-gap: 1.5rem;
+	padding: .5rem 0 .5rem 1.5rem
+}
+
+.nav_logo {
+	margin-bottom: 0.5rem;
+	padding: 16px 1.5rem;
+	background-color: #073FA8;
+	padding: 17px 1.6rem;
+}
+
+.nav_logo-icon {
+	font-size: 1.25rem;
+	color: var(--white-color)
+}
+
+.nav_logo-name {
+	color: var(--white-color);
+	font-weight: 700
+}
+
+/*AFECTA OPCIONES DEL MENU*/
+
+/* Estilos para los items del menú principal */
+.nav_list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .nav_item {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .nav_link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-color);
+    padding: 10px 15px;
+    border-radius: 5px;
+    transition: all 0.3s;
+  }
+  
+  
+  .nav_link.active {
+    background-color: var(--first-color);
+    color: var(--white-color);
+  }
+  
+  /* Estilos para submenús */
+  .submenu {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    padding-left: 20px;
+  }
+  
+  .submenu_link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: var(--text-color);
+    padding: 8px 15px;
+    border-radius: 5px;
+    font-size: 0.9rem;
+  }
+  
+  .submenu_link:hover {
+    background-color: var(--first-color-light);
+    color: var(--white-color);
+  }
+  
+  .submenu_link .nav_icon {
+    font-size: 0.9rem;
+    margin-right: 10px;
+  }
+  
+  /* Cuando el submenú está activo */
+  .nav_item.active .submenu {
+    max-height: 500px; /* Ajusta según necesidad */
+  }
+  
+  .nav_item.active .dropdown-icon {
+    transform: rotate(180deg);
+  }
+  
+  .dropdown-icon {
+    margin-left: auto;
+    transition: transform 0.3s;
+    font-size: 0.8rem;
+  }
+
+.nav_icon {
+	font-size: 1.25rem
+}
+
+.nav_profile_icon {
+	font-size: 2.5rem;
+}
+
+.show {
+	left: 0
+}
+
+.body-pd {
+	padding-left: calc(var(--nav-width) + 1rem)
+}
+
+.active {
+	color: var(--white-color)
+}
+
+.active::before {
+	content: '';
+	position: absolute;
+	left: 0;
+	width: 2px;
+	height: 32px;
+	background-color: var(--white-color)
+}
+
+.height-100 {
+	height: 100vh
+}
+
+/*Afecta a "MENU DE NAVEGACION"*/
+
+.nav_ad {
+    overflow: hidden;
+    white-space: nowrap;
+    transition: width 0.3s ease;
+    width: 10rem; /* Ancho suficiente para "MENÚ" */
+}
+
+.nav_ad::after {
+    content: " DE NAVEGACIÓN";
+    opacity: 0;
+    margin-left: 4px;
+    transition: opacity 0.3s ease;
+}
+
+.show .nav_ad {
+    align-items: center;
+    width: 14rem; /* Ancho suficiente para todo el texto */
+}
+
+.show .nav_ad::after {
+    opacity: 1;
+}
+
+
+.profile {
+	display: flex;
+	color: var(--white-color);
+	padding: 0 0.8rem;
+	gap: 22px;
+	margin-bottom: 0.5rem;
+	align-items: center;
+}
+
+.profile_info {
+	display: flex;
+	flex-direction: column;
+	font-size: 14px;
+}
+
+.profile_status {
+	font-size: 12px;
+}
+
+.profile_status::before {
+	content: '';
+	display: inline-block;
+	background-color: #04FD2A;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	margin-right: 4px
+}
+
+main {
+	width: 100%;
+	margin: 26px 0 !important;
+	padding: 24px 0;
+}
+
+
+
+@media screen and (min-width: 768px) {
+	body {
+		margin: calc(var(--header-height) + 1rem) 0 0 0;
+		padding-left: calc(var(--nav-width) + 2rem)
+	}
+
+	.header {
+		height: calc(var(--header-height) + 1rem);
+		padding: 0 2rem 0 calc(var(--nav-width) + 2rem)
+	}
+
+	.nav_ad {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		background-color: rgba(0, 0, 0, 0.25);
+		text-align: center;
+		height:  60px;
+		margin-bottom: 1.5rem;
+		color: #938E8E;
+	}
+
+	.header_profile img {
+		width: 45px
+	}
+
+	.l-navbar {
+		left: 0;
+	}
+
+	.show {
+		width: calc(var(--nav-width) + 156px)
+	}
+
+	.body-pd {
+		padding-left: calc(var(--nav-width) + 188px)
+	}
+}
+

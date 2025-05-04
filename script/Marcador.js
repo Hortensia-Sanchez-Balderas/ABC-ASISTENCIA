@@ -11,7 +11,7 @@ const alertContainer = document.getElementById('alertContainer');
 
 const appendAlert = (message, type, heading, showAdditionalContent) => {
   const additionalContent = showAdditionalContent ? 
-    '<p class="mb-0">Ingreso registrado 11:03:32.</p> <div class="d-flex justify-content-between"> <p class="mb-0">Tiene 2 mensajes nuevos.</p> <a href="./pages/iniciar-sesion/" class="login-link2">Iniciar sesión</a> </div>' 
+    '<p class="mb-0">Ingreso registrado 11:03:32.</p> <div class="d-flex justify-content-between"> <p class="mb-0">Tiene 2 mensajes nuevos.</p> <a href="../PROYECTO ABC ASISTENCIA/pages/IniciarSesion.html" class="login-link2">Iniciar sesión</a> </div>' 
     : '';
 
   const wrapper = document.createElement('div');
