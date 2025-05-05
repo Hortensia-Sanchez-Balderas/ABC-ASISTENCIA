@@ -134,13 +134,15 @@ a {
     display: flex;
     align-items: center;
     text-decoration: none;
-    color: var(--text-color);
+    color: var(--first-color-light);
     padding: 10px 15px;
     border-radius: 5px;
     transition: all 0.3s;
   }
   
-  
+  .nav_link:hover {
+	color: var(--white-color)
+}
   .nav_link.active {
     background-color: var(--first-color);
     color: var(--white-color);
