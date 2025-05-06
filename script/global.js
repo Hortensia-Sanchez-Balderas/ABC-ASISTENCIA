@@ -1,3 +1,4 @@
+//--------------------FUNCIONALIDAD DEL MENU----------------------------------------------------
 document.addEventListener("DOMContentLoaded", function() {
     // Función para mostrar/ocultar el navbar
     const showNavbar = (toggleId, navId, bodyId, headerId) => {
@@ -50,3 +51,5 @@ document.addEventListener("DOMContentLoaded", function() {
       link.addEventListener('click', setActiveLink);
     });
   });
+
+  //----------------------------------------
