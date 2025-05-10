@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>ABC Asistencia - Historial de Asistencia</title>
+	<title>ABC Asistencia - Usuarios</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Abel&family=Koukhmer+Sleokchher&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="../css/bootstrap-icons.min.css">
@@ -53,13 +53,13 @@
 							</a>
 
                             <div class="nav_item">
-                                <div class="nav_link dropdown-toggle">
+                                <div class="nav_link active dropdown-toggle">
                                   <i class="bi bi-box-arrow-in-right nav_icon"></i>
                                   <span class="nav_name">Acceso</span>
                                   <i class="bi bi-chevron-down dropdown-icon"></i>
                                 </div>
                                 <div class="submenu">
-                                  <a href="../pages/Usuarios.html" class="submenu_link">
+                                  <a href="../pages/Usuarios.html" class="submenu_link ">
                                     <i class="bi bi-people nav_icon"></i>
                                     <span class="nav_name">Usuarios</span>
                                   </a>
@@ -71,17 +71,17 @@
                               </div>
 
                               <div class="nav_item">
-                                <div class="nav_link active dropdown-toggle">
+                                <div class="nav_link dropdown-toggle">
                                   <i class="bi bi-pass nav_icon"></i>
                                   <span class="nav_name">Asistencias</span>
                                   <i class="bi bi-chevron-down dropdown-icon"></i>
                                 </div>
                                 <div class="submenu">
-                                  <a href="../pages/ListaAsistencia.html" class="submenu_link">
+                                  <a href="../pages/ListaAsistencia.html" class="submenu_link ">
                                     <i class="bi bi-calendar-check nav_icon"></i>
                                     <span class="nav_name">Asistencia diaria</span>
                                   </a>
-                                  <a href="../pages/HistorialAsistenciaAdmin.html" class="submenu_link ">
+                                  <a href="../pages/HistorialAsistenciaAdmin.html" class="submenu_link">
                                     <i class="bi bi-clock-history nav_icon"></i>
                                     <span class="nav_name">Historial de Asistencia</span>
                                   </a>
@@ -101,12 +101,12 @@
 			</nav>
 	</div>
 
-		<!--Container Main start-->
+	<!--Container Main start-->
 	<main class="container-fluid">
 		<div class="row g-4">
 			<div class="col-12">
-				<h1>Historial de Asistencia</h1>
-				
+				<h1>Usuarios</h1>
+
 				<!-- Filtros -->
 				<div class="card shadow-sm mb-4">
 					<div class="card-body">
@@ -116,16 +116,6 @@
 								<div class="input-group">
 									<span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
 									<input type="text" class="form-control" placeholder="Buscar (ID o nombre)" id="buscarAsistencia">
-								</div>
-							</div>
-							
-							<!-- Filtro de fecha -->
-							<div class="col-md-3">
-								<div class="input-group">
-									<span class="input-group-text bg-light"><i class="bi bi-calendar"></i></span>
-									<input type="date" class="form-control" id="fechaInicio">
-									<span class="input-group-text bg-light">a</span>
-									<input type="date" class="form-control" id="fechaFin">
 								</div>
 							</div>
 							
@@ -141,22 +131,22 @@
 						</div>
 					</div>
 				</div>
-				
+
 				<!-- Tabla de resultados -->
 				<div class="card shadow-sm">
 					<div class="card-body p-0">
 						<div class="table-responsive">
-							<table class="table table-hover mb-0" id="tablaAsistencias">
+							<table class="table table-hover mb-0" id="tablaAsistenciasdiario">
 								<thead class="bg-primary text-white">
 									<tr>
 										<th>ID Usuario</th>
 										<th>Nombre</th>
-										<th>Horas retardo</th>
-										<th>Retardos</th>
-										<th>Faltas</th>
-										<th>Salidas temprano</th>
-										<th>Asistencias</th>
-										<th>Horas trabajadas</th>
+                                        <th>Departamento</th>
+										<th>Hora Entrada</th>
+										<th>Hora salida</th>
+                                        <th>Contraseña</th>
+										<th>Editar</th>
+										<th>Eliminar</th>
 									</tr>
 								</thead>
 								<tbody>
@@ -200,10 +190,10 @@
 			</div>
 		</div>
 	</main>
+		
 	
 	<script src="../script/jquery-3.7.1.min.js"></script>
 	<script src="../script/bootstrap.bundle.min.js"></script>
 	<script src="../script/global.js"></script>
-	<script src="../script/HistorialAsistenciaAdmin.js"></script>
 </body>
 </html>
