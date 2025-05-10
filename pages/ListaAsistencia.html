@@ -102,17 +102,173 @@
 	</div>
 
 	<!--Container Main start-->
-	<main class="bg-light container-fluid">
+	<main class="container-fluid">
 		<div class="row g-4">
-			<div class="col-12 col-md-7">
+			<div class="col-12">
 				<h1>Lista de Asistencia Diaria</h1>
+
+				<!-- Filtros -->
+				<div class="card shadow-sm mb-4">
+					<div class="card-body">
+						<div class="row g-3 align-items-center">
+							<!-- Buscador -->
+							<div class="col-md-3">
+								<div class="input-group">
+									<span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+									<input type="text" class="form-control" placeholder="Buscar (ID o nombre)" id="buscarAsistencia">
+								</div>
+							</div>
+							
+							<!-- Filtro de Departamento -->
+							<div class="col-md-3">
+								<div class="input-group">
+									<span class="input-group-text bg-light"><i class="bi bi-building"></i></span>
+									<select class="form-select" id="filtroDepartamento">
+										<option value="">Todos los departamentos</option>
+										<!-- Opciones se llenarán dinámicamente con JavaScript -->
+									</select>
+								</div>
+							</div>
+							
+							<!-- Filtro de Rol -->
+							<div class="col-md-2">
+								<div class="input-group">
+									<span class="input-group-text bg-light"><i class="bi bi-person-badge"></i></span>
+									<select class="form-select" id="filtroRol">
+										<option value="">Todos los roles</option>
+										<option value="1">Administrador</option>
+										<option value="2">Empleado</option>
+									</select>
+								</div>
+							</div>
+							<!-- Botones -->
+							<div class="col-md-2 d-flex justify-content-end gap-2">
+								<button class="btn btn-primary" id="btnBuscar">
+									<i class="bi bi-search"></i> Buscar
+								</button>
+								<button class="btn btn-outline-secondary" id="btnLimpiar">
+									<i class="bi bi-arrow-counterclockwise"></i> Limpiar
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Tabla de resultados -->
+				<div class="card shadow-sm">
+					<div class="card-body p-0">
+						<div class="table-responsive">
+							<table class="table table-hover mb-0" id="tablaAsistenciasdiario">
+								<thead class="bg-primary text-white">
+									<tr>
+										<th>ID Usuario</th>
+										<th>Nombre</th>
+										<th>Departamento</th>
+										<th>Tipo de usuario</th>
+										<th>Hora Entrada</th>
+										<th>Hora salida</th>
+										<th>Editar</th>
+										<th>Eliminar</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td colspan="8" class="text-center py-4">No hay datos disponibles</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						
+						<!-- Paginación -->
+						<div class="d-flex justify-content-between align-items-center p-3 border-top">
+							<div class="form-group mb-0">
+								<select class="form-select form-select-sm" id="filasPorPagina">
+									<option value="5">5 filas</option>
+									<option value="10" selected>10 filas</option>
+									<option value="20">20 filas</option>
+									<option value="50">50 filas</option>
+								</select>
+							</div>
+							<div class="info-paginacion me-3">Mostrando 1-10 de 25 registros</div>
+							<nav>
+								<ul class="pagination pagination-sm mb-0">
+									<li class="page-item disabled">
+										<a class="page-link" href="#" aria-label="Previous">
+											<span aria-hidden="true">&laquo;</span>
+										</a>
+									</li>
+									<li class="page-item active"><a class="page-link" href="#">1</a></li>
+									<li class="page-item"><a class="page-link" href="#">2</a></li>
+									<li class="page-item">
+										<a class="page-link" href="#" aria-label="Next">
+											<span aria-hidden="true">&raquo;</span>
+										</a>
+									</li>
+								</ul>
+							</nav>
+						</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</main>
-		
+	
+	<!-- Modal de Edición -->
+<div class="modal fade" id="modalEdicion" tabindex="-1" aria-labelledby="modalEdicionLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalEdicionLabel">Editar Registro de Asistencia</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formularioEdicion">
+                <div class="modal-body">
+                    <input type="hidden" id="editId">
+                    
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="editNombre" class="form-label">Nombre</label>
+                            <input type="text" class="form-control" id="editNombre" readonly>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="editDepartamento" class="form-label">Departamento</label>
+                            <select class="form-select" id="editDepartamento" required>
+                                <!-- Se llena dinámicamente -->
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <label for="editRol" class="form-label">Rol</label>
+                            <select class="form-select" id="editRol" required>
+                                <option value="1">Administrador</option>
+                                <option value="2">Empleado</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label for="editHoraEntrada" class="form-label">Hora Entrada</label>
+                            <input type="time" class="form-control" id="editHoraEntrada" required>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <label for="editHoraSalida" class="form-label">Hora Salida</label>
+                            <input type="time" class="form-control" id="editHoraSalida" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" id="btnGuardarCambios">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 	
 	<script src="../script/jquery-3.7.1.min.js"></script>
 	<script src="../script/bootstrap.bundle.min.js"></script>
+	<script src="../script/ListaAsistencia.js"></script>
 	<script src="../script/global.js"></script>
 </body>
 </html>

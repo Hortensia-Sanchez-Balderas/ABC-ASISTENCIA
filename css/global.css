@@ -307,7 +307,7 @@ h1 {
     overflow: hidden;
 }
 
-/* Estilos para la tabla de asistencias */
+/* Estilos para la tabla de historialasistencias, listaasistencia, */
 .table-responsive {
     overflow-x: auto;
 }
@@ -439,6 +439,29 @@ h1 {
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075) !important;
 }
 
+
+/* Estilos para los selects de filtro */
+.form-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-chevron-down' viewBox='0 0 16 16'%3E%3Cpath fill-rule='evenodd' d='M1.646 4.646a.5.5 0 0 1 .708 0L8 10.293l5.646-5.647a.5.5 0 0 1 .708.708l-6 6a.5.5 0 0 1-.708 0l-6-6a.5.5 0 0 1 0-.708z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+    padding-right: 2.25rem;
+    cursor: pointer;
+}
+
+/* Estilo para los íconos en los inputs */
+.input-group-text {
+    transition: all 0.3s;
+}
+
+.input-group:focus-within .input-group-text {
+    background-color: var(--purple-color);
+    color: white;
+}
 @media screen and (min-width: 768px) {
 	body {
 		margin: calc(var(--header-height) + 1rem) 0 0 0;
@@ -478,3 +501,27 @@ h1 {
 	}
 }
 
+/* Estilos para el modal de edición */
+.modal-content {
+    border: none;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.modal-footer {
+    border-top: 1px solid #eee;
+}
+
+/* Asegurar que los selects tengan el mismo estilo */
+.modal-body .form-select {
+    padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+}
+
+/* Estilos para los inputs de tiempo */
+input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: invert(0.5);
+    cursor: pointer;
+}
