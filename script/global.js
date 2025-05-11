@@ -1,4 +1,6 @@
-//--------------------FUNCIONALIDAD DEL MENU----------------------------------------------------
+//Notas Importates
+//se tiene una funcion para formatear la hora de 12hrs a 24 hrs borrar de ser necesario (aplica a pantalla usuarios,lista de asistencia)
+// --------------------FUNCIONALIDAD DEL MENU----------------------------------------------------
 document.addEventListener("DOMContentLoaded", function() {
     // Función para mostrar/ocultar el navbar
     const showNavbar = (toggleId, navId, bodyId, headerId) => {
@@ -51,5 +53,40 @@ document.addEventListener("DOMContentLoaded", function() {
       link.addEventListener('click', setActiveLink);
     });
   });
-
-
+// -------------------- FUNCIÓN PARA FORMATEO DE HORAS (24h) --------------------
+/**
+ * Estandariza una hora al formato 24h (HH:MM)
+ * @param {string} hora - Hora en cualquier formato
+ * @returns {string} Hora en formato 24h (HH:MM) o '--:--' si no es válida
+ */
+function formatearHora24(hora) {
+  if (!hora || hora.trim() === '' || hora === '--:--') return '--:--';
+  
+  // Si ya está en formato 24h correcto (HH:MM)
+  if (/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/.test(hora)) {
+      // Asegurar dos dígitos en horas (ej: "8:00" -> "08:00")
+      const [hh, mm] = hora.split(':');
+      return `${hh.padStart(2, '0')}:${mm}`;
+  }
+  
+  // Si viene en formato 12h (ej: "1:45 PM")
+  if (/^([0]?[1-9]|1[0-2]):[0-5][0-9] [AP]M$/i.test(hora)) {
+      const [tiempo, periodo] = hora.split(' ');
+      let [hh, mm] = tiempo.split(':');
+      hh = parseInt(hh);
+      
+      // Convertir a 24h
+      if (periodo.toUpperCase() === 'PM' && hh < 12) hh += 12;
+      if (periodo.toUpperCase() === 'AM' && hh === 12) hh = 0;
+      
+      return `${hh.toString().padStart(2, '0')}:${mm}`;
+  }
+  
+  // Si es un objeto Date
+  if (hora instanceof Date || !isNaN(new Date(hora).getTime())) {
+      const date = new Date(hora);
+      return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+  }
+  
+  return '--:--'; // Formato no reconocido
+}

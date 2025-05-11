@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", function() {
     //Notas importantes 
     //Buscar palaabra "endpoint" para encontrar donde actualizar 
-    // Existe una funcion para convertir formato de hora 08:00 AM/PM a 24h para el input time
+    // Se elimino la funcion de formatear hora y se movio a global, pero en este archivo tambien lo llama en otra funcion
 
     
     // Configuración global
@@ -125,8 +125,11 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Formatear fecha-hora
     function formatDateTime(dateTimeStr) {
+        if (!dateTimeStr) return '--:--';
         const date = new Date(dateTimeStr);
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const horas = date.getHours().toString().padStart(2, '0');
+        const minutos = date.getMinutes().toString().padStart(2, '0');
+        return `${horas}:${minutos}`;
     }
 
     // Llenar filtro de departamentos
@@ -378,28 +381,11 @@ document.addEventListener("DOMContentLoaded", function() {
         campoNombre.value = registroEditando.nombre;
         campoDepartamento.value = registroEditando.id_departamento;
         campoRol.value = registroEditando.id_rol;
-        campoHoraEntrada.value = registroEditando.hora_entrada.includes(':') ? 
-            registroEditando.hora_entrada : 
-            convertirHoraAModelo(registroEditando.hora_entrada);
-        campoHoraSalida.value = registroEditando.hora_salida.includes(':') ? 
-            registroEditando.hora_salida : 
-            convertirHoraAModelo(registroEditando.hora_salida);
-
+        campoHoraEntrada.value = formatearHoraEstandar(registroEditando.hora_entrada);
+        campoHoraSalida.value = formatearHoraEstandar(registroEditando.hora_salida);
+        
         // Mostrar modal
         modalEdicion.show();
-    }
-
-    // Convertir formato de hora 08:00 AM/PM a 24h para el input time
-    function convertirHoraAModelo(hora) {
-        if (!hora || hora === '-') return '';
-        const [tiempo, periodo] = hora.split(' ');
-        const [horas, minutos] = tiempo.split(':');
-        
-        let horas24 = parseInt(horas);
-        if (periodo === 'PM' && horas24 < 12) horas24 += 12;
-        if (periodo === 'AM' && horas24 === 12) horas24 = 0;
-        
-        return `${horas24.toString().padStart(2, '0')}:${minutos}`;
     }
 
     // Guardar cambios desde el modal
