@@ -1,9 +1,4 @@
 document.addEventListener("DOMContentLoaded", function() {
-    //Notas importantes 
-    //Buscar palaabra "endpoint" para encontrar donde actualizar 
-    // Se elimino la funcion de formatear hora y se movio a global, pero en este archivo tambien lo llama en otra funcion
-
-    
     // Configuración global
     const API_BASE_URL = 'http://tu-api.com/api';
     
@@ -49,68 +44,97 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // Carga todos los datos necesarios
+    // Carga todos los datos necesarios con datos simulados
     async function loadData() {
         try {
-            const [eventos, turnos, empleados, departamentos] = await Promise.all([
-                fetchEventosDiarios(),
-                fetchTurnosDiarios(),
-                fetchEmpleados(),
-                fetchDepartamentos()
-            ]);
+            // Datos simulados
+            const departamentos = [
+                { id_departamento: 1, nombre: "Ventas" },
+                { id_departamento: 2, nombre: "Recursos Humanos" },
+                { id_departamento: 3, nombre: "TI" },
+                { id_departamento: 4, nombre: "Contabilidad" }
+            ];
+
+            const roles = [
+                { id_rol: 1, nombre: "Empleado" },
+                { id_rol: 2, nombre: "Administrador" },
+            ];
+
+            const empleados = [
+                { id_empleado: 101, nombre: "Juan Pérez", id_departamento: 1, id_rol: 1 },
+                { id_empleado: 102, nombre: "María García", id_departamento: 2, id_rol: 2 },
+                { id_empleado: 103, nombre: "Carlos López", id_departamento: 3, id_rol: 1 },
+                { id_empleado: 104, nombre: "Ana Martínez", id_departamento: 4, id_rol: 1 },
+                { id_empleado: 105, nombre: "Luis Rodríguez", id_departamento: 1, id_rol: 1 }
+            ];
+
+            // Fecha actual para los eventos
+            const hoy = new Date();
+            const fechaStr = hoy.toISOString().split('T')[0];
             
-            allData = processCombinedData(eventos, turnos, empleados);
+            // Eventos simulados (asistencias)
+            const eventos = [
+                { id_empleado: 101, tipo_evento: { nombre: "Entrada" }, fecha_hora: `${fechaStr}T08:15:00` },
+                { id_empleado: 101, tipo_evento: { nombre: "Salida" }, fecha_hora: `${fechaStr}T17:30:00` },
+                { id_empleado: 102, tipo_evento: { nombre: "Entrada" }, fecha_hora: `${fechaStr}T08:45:00` },
+                { id_empleado: 102, tipo_evento: { nombre: "Salida" }, fecha_hora: `${fechaStr}T17:15:00` },
+                { id_empleado: 103, tipo_evento: { nombre: "Entrada" }, fecha_hora: `${fechaStr}T09:05:00` },
+                { id_empleado: 104, tipo_evento: { nombre: "Entrada" }, fecha_hora: `${fechaStr}T08:00:00` },
+                { id_empleado: 104, tipo_evento: { nombre: "Salida" }, fecha_hora: `${fechaStr}T16:45:00` }
+            ];
+
+            // Turnos simulados
+            const turnos = [
+                { id_empleado: 101, id_turno: 1001, minutos_retardo: 15, tiempo_comida_minutos: 45 },
+                { id_empleado: 102, id_turno: 1002, minutos_retardo: 45, tiempo_comida_minutos: 30 },
+                { id_empleado: 103, id_turno: 1003, minutos_retardo: 65, tiempo_comida_minutos: 60 },
+                { id_empleado: 104, id_turno: 1004, minutos_retardo: 0, tiempo_comida_minutos: 30 }
+            ];
+
+            // Procesar los datos combinados
+            allData = processCombinedData(eventos, turnos, empleados, departamentos, roles);
             datosFiltrados = [...allData];
             
             populateDepartmentFilter(departamentos);
-            populateEditDepartmentFilter(departamentos); // Llenar select del modal
+            populateEditDepartmentFilter(departamentos);
+            
+            if (selectRol) {
+                selectRol.innerHTML = '<option value="">Todos los roles</option>';
+                roles.forEach(rol => {
+                    const option = document.createElement('option');
+                    option.value = rol.id_rol;
+                    option.textContent = rol.nombre;
+                    selectRol.appendChild(option);
+                });
+            }
+            
         } catch (error) {
-            console.error("Error cargando datos:", error);
-            throw error;
+            console.error("Error cargando datos simulados:", error);
+            showError("Error al cargar datos de prueba");
+        } finally {
+            showLoading(false);
         }
     }
 
-    // Fetch endpoints específicos
-    async function fetchEventosDiarios() {
-        const response = await fetch(`${API_BASE_URL}/eventos-asistencia/diarios`);
-        if (!response.ok) throw new Error("Error obteniendo eventos diarios");
-        return await response.json();
-    }
-
-    async function fetchTurnosDiarios() {
-        const response = await fetch(`${API_BASE_URL}/turnos-completos/diarios`);
-        if (!response.ok) throw new Error("Error obteniendo turnos diarios");
-        return await response.json();
-    }
-
-    async function fetchEmpleados() {
-        const response = await fetch(`${API_BASE_URL}/empleados`);
-        if (!response.ok) throw new Error("Error obteniendo empleados");
-        return await response.json();
-    }
-
-    async function fetchDepartamentos() {
-        const response = await fetch(`${API_BASE_URL}/departamentos`);
-        if (!response.ok) throw new Error("Error obteniendo departamentos");
-        return await response.json();
-    }
-
     // Procesamiento de datos combinados
-    function processCombinedData(eventos, turnos, empleados) {
+    function processCombinedData(eventos, turnos, empleados, departamentos, roles) {
         return empleados.map(empleado => {
             const eventosEmpleado = eventos.filter(e => e.id_empleado === empleado.id_empleado);
             const turnoEmpleado = turnos.find(t => t.id_empleado === empleado.id_empleado);
+            
+            // Obtener nombres de departamento y rol
+            const dept = departamentos.find(d => d.id_departamento === empleado.id_departamento);
+            const rol = roles.find(r => r.id_rol === empleado.id_rol);
             
             return {
                 id_empleado: empleado.id_empleado,
                 nombre: empleado.nombre,
                 id_departamento: empleado.id_departamento,
-                departamento: empleado.departamento?.nombre || 'Sin departamento',
+                departamento: dept?.nombre || 'Sin departamento',
                 id_rol: empleado.id_rol,
-                rol: empleado.rol?.nombre || 'Sin rol',
+                rol: rol?.nombre || 'Sin rol',
                 hora_entrada: getEventTime(eventosEmpleado, 'Entrada'),
                 hora_salida: getEventTime(eventosEmpleado, 'Salida'),
-                minutos_retardo: turnoEmpleado?.minutos_retardo || 0,
                 tiempo_comida: turnoEmpleado?.tiempo_comida_minutos || 0,
                 id_turno: turnoEmpleado?.id_turno || null
             };
@@ -120,16 +144,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Helper para obtener hora de evento
     function getEventTime(eventos, tipo) {
         const evento = eventos.find(e => e.tipo_evento?.nombre === tipo);
-        return evento ? formatDateTime(evento.fecha_hora) : '-';
-    }
-
-    // Formatear fecha-hora
-    function formatDateTime(dateTimeStr) {
-        if (!dateTimeStr) return '--:--';
-        const date = new Date(dateTimeStr);
-        const horas = date.getHours().toString().padStart(2, '0');
-        const minutos = date.getMinutes().toString().padStart(2, '0');
-        return `${horas}:${minutos}`;
+        return evento ? formatearHora24(evento.fecha_hora) : '-';
     }
 
     // Llenar filtro de departamentos
@@ -231,7 +246,7 @@ document.addEventListener("DOMContentLoaded", function() {
         tbody.innerHTML = '';
         
         if (datosPaginados.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="9" class="text-center py-4">No se encontraron registros</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">No se encontraron registros</td></tr>';
             return;
         }
         
@@ -244,7 +259,6 @@ document.addEventListener("DOMContentLoaded", function() {
                 <td>${asistencia.rol}</td>
                 <td>${asistencia.hora_entrada}</td>
                 <td>${asistencia.hora_salida}</td>
-                <td>${asistencia.minutos_retardo} min</td>
                 <td>
                     <button class="btn btn-sm btn-outline-primary edit-btn" data-id="${asistencia.id_empleado}">
                         <i class="bi bi-pencil"></i>
@@ -381,9 +395,14 @@ document.addEventListener("DOMContentLoaded", function() {
         campoNombre.value = registroEditando.nombre;
         campoDepartamento.value = registroEditando.id_departamento;
         campoRol.value = registroEditando.id_rol;
-        campoHoraEntrada.value = formatearHoraEstandar(registroEditando.hora_entrada);
-        campoHoraSalida.value = formatearHoraEstandar(registroEditando.hora_salida);
+        campoHoraEntrada.value = registroEditando.hora_entrada !== '-' ? formatearHora24(registroEditando.hora_entrada) : '';
+        campoHoraSalida.value = registroEditando.hora_salida !== '-' ? formatearHora24(registroEditando.hora_salida) : '';
         
+        // Deshabilitar campos que no se pueden editar
+        campoNombre.disabled = true;
+        campoDepartamento.disabled = true;
+        campoRol.disabled = true;
+
         // Mostrar modal
         modalEdicion.show();
     }
@@ -398,34 +417,25 @@ document.addEventListener("DOMContentLoaded", function() {
                 throw new Error("Las horas de entrada y salida son obligatorias");
             }
 
-            // Preparar datos para enviar
+            // Preparar datos para enviar (solo horas)
             const datosActualizados = {
                 id_empleado: campoId.value,
-                nombre: campoNombre.value,
-                id_departamento: campoDepartamento.value,
-                id_rol: campoRol.value,
                 hora_entrada: campoHoraEntrada.value,
                 hora_salida: campoHoraSalida.value
             };
 
-            // Endpoint para actualizar
-            const response = await fetch(`${API_BASE_URL}/asistencias/${campoId.value}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(datosActualizados)
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.message || "Error en la actualización");
+            // Simular actualización en la UI
+            const index = allData.findIndex(e => e.id_empleado.toString() === campoId.value);
+            if (index !== -1) {
+                allData[index].hora_entrada = campoHoraEntrada.value;
+                allData[index].hora_salida = campoHoraSalida.value;
+                datosFiltrados = [...allData];
+                actualizarTabla();
             }
 
-            // Cerrar modal y recargar datos
+            // Cerrar modal
             modalEdicion.hide();
-            await loadData();
-            showSuccess("Registro actualizado correctamente");
+            showSuccess("Horas actualizadas correctamente");
         } catch (error) {
             console.error("Error guardando cambios:", error);
             showError(error.message || "Error al guardar los cambios");
@@ -451,13 +461,11 @@ document.addEventListener("DOMContentLoaded", function() {
             try {
                 showLoading(true, "Eliminando registro...");
                 
-                const response = await fetch(`${API_BASE_URL}/turnos-completos/${idTurno}`, {
-                    method: 'DELETE'
-                });
-
-                if (!response.ok) throw new Error("Error en la eliminación");
-
-                await loadData();
+                // Simular eliminación en la UI
+                allData = allData.filter(item => item.id_turno !== parseInt(idTurno));
+                datosFiltrados = [...allData];
+                actualizarTabla();
+                
                 showSuccess("Registro eliminado correctamente");
             } catch (error) {
                 console.error("Error eliminando:", error);

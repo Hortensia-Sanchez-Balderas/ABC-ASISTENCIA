@@ -1,0 +1,9 @@
+/* Estilo para campos deshabilitados en el modal de edicion */
+#modalEdicion input:disabled, 
+#modalEdicion select:disabled {
+    background-color: #f8f9fa;
+    opacity: 1;
+    color: #495057;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+}
