@@ -231,6 +231,16 @@ function guardarUsuario() {
 
 // ---------------------------------------------------Función para mostrar el modal de edición---------------------------------------
 function mostrarModalEditarUsuario(usuario) {
+    // Cargar departamentos antes de mostrar el modal
+    cargarDepartamentos();
+    // Cargar días de la semana antes de mostrar el modal
+    cargarDiasSemana(); 
+    // Limpiar horarios temporales
+    horariosTemporales = [];
+    // Limpiar tabla de horarios
+    const tablaHorarios = document.getElementById('tablaHorariosEdicion');
+    tablaHorarios.querySelector('tbody').innerHTML = '';
+    
     // Limpiar y preparar el modal
     const modal = new bootstrap.Modal(document.getElementById('modalEditarUsuario'));
     const form = document.getElementById('formEditarUsuario');
