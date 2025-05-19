@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ABC Asistencia - Departamentos</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Abel&family=Koukhmer+Sleokchher&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="../css/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="../css/bootstrap.min.css">
+	<link rel="stylesheet" href="../css/global.css">
+</head>
+<body class="d-flex" id="body-pd">
+	<header class="header" id="header">
+		<div class="header_toggle"> <i class="bi bi-list" id="header-toggle"></i> </div>
+			<div class="dropdown">
+				<a class="btn p-0 w-auto d-inline-block" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+					<div class="header_profile">
+						<i class="bi bi-person-circle"></i>
+						<p>Admin</p>
+					</div>
+				</a>
+				<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink">
+						<li><a class="dropdown-item" href="../Marcador.html">Cerrar sesión</a></li>
+				</ul>
+			</div>
+	
+	</header>
+    <!--Menu-->
+	<div class="l-navbar" id="nav-bar">
+			<nav class="nav">
+					<div>
+						<a href="#" class="nav_logo">
+							<i class="bi bi-stack nav_logo-icon"></i>
+							<span class="nav_logo-name">ABC Asistencia</span>
+						</a>
+
+						<div class="profile">
+							<i class="bi bi-person-circle nav_profile_icon"></i>
+							<div class="profile_info">
+								<span class="profile_name">Admin</span>
+								<span class="profile_status">Online</span>
+							</div>
+						</div>
+						<div class="nav_ad">
+							MENÚ 
+						</div>
+
+						<div class="nav_list">
+                            <!--ACTIVAR MENU DEPENDIENDO LA PANTALLA QUE ES-->
+							<a href="../pages/DashboardAdmin.html" class="nav_link ">
+								<i class="bi bi-columns-gap nav_icon"></i>
+								<span class="nav_name">Dashboard</span>
+							</a>
+
+                            <div class="nav_item">
+                                <div class="nav_link active dropdown-toggle">
+                                  <i class="bi bi-box-arrow-in-right nav_icon"></i>
+                                  <span class="nav_name">Acceso</span>
+                                  <i class="bi bi-chevron-down dropdown-icon"></i>
+                                </div>
+                                <div class="submenu">
+                                  <a href="../pages/Usuarios.html" class="submenu_link ">
+                                    <i class="bi bi-people nav_icon"></i>
+                                    <span class="nav_name">Usuarios</span>
+                                  </a>
+                                  <a href="../pages/Departamento.html" class="submenu_link">
+                                    <i class="bi bi-building nav_icon"></i>
+                                    <span class="nav_name">Departamento</span>
+                                  </a>
+                                </div>
+                              </div>
+
+                              <div class="nav_item">
+                                <div class="nav_link dropdown-toggle">
+                                  <i class="bi bi-pass nav_icon"></i>
+                                  <span class="nav_name">Asistencias</span>
+                                  <i class="bi bi-chevron-down dropdown-icon"></i>
+                                </div>
+                                <div class="submenu">
+                                  <a href="../pages/ListaAsistencia.html" class="submenu_link ">
+                                    <i class="bi bi-calendar-check nav_icon"></i>
+                                    <span class="nav_name">Asistencia diaria</span>
+                                  </a>
+                                  <a href="../pages/HistorialAsistenciaAdmin.html" class="submenu_link">
+                                    <i class="bi bi-clock-history nav_icon"></i>
+                                    <span class="nav_name">Historial de Asistencia</span>
+                                  </a>
+                                  <a href="../pages/Reportes.html" class="submenu_link">
+                                    <i class="bi bi-file-earmark-bar-graph nav_icon"></i>
+                                    <span class="nav_name">Reportes</span>
+                                  </a>
+                                </div>
+                              </div>
+
+							<a href="../pages/AdvertenciasAdmin.html" class="nav_link">
+								<i class="bi bi-file-earmark-medical nav_icon"></i>
+								<span class="nav_name">Crear advertencia</span>
+							</a>
+						</div>
+					</div>
+			</nav>
+	</div>
+
+	<!--Container Main start-->
+	<main class="container-fluid">
+		<div class="row g-4">
+			<div class="col-12">
+				<h1>Departamentos</h1>
+
+				<!-- Filtros -->
+				<div class="card shadow-sm mb-4">
+					<div class="card-body">
+						<div class="row g-3 align-items-center">
+							<!-- Buscador -->
+							<div class="col-md-5">
+								<div class="input-group">
+									<span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
+									<input type="text" class="form-control" placeholder="Buscar (ID o nombre)" id="buscarAsistencia">
+								</div>
+							</div>
+							
+							<!-- Botones -->
+							<div class="col-md-3 d-flex justify-content-end gap-2">
+								<button class="btn btn-primary" id="btnBuscar">
+									<i class="bi bi-search"></i> Buscar
+								</button>
+								<button class="btn btn-outline-secondary" id="btnLimpiar">
+									<i class="bi bi-arrow-counterclockwise"></i> Limpiar
+								</button>
+                                
+							</div>
+
+                            <div class="col-md-4 d-flex justify-content-end gap-2">
+                                <button class="btn btn-primary" id="btnAgregarDepartamento">
+                                    <i class="bi bi-plus-circle"></i> Agregar Departamento
+                                </button>
+                            </div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Tabla de resultados -->
+				<div class="card shadow-sm">
+					<div class="card-body p-0">
+						<div class="table-responsive">
+							<table class="table table-hover mb-0" id="tablaAsistenciasdiario">
+								<thead class="bg-primary text-white">
+									<tr>
+										<th>Nombre</th>
+										<th>Descripcion</th>
+                                        <th>Fecha de registro</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td colspan="8" class="text-center py-4">No hay datos disponibles</td>
+									</tr>
+								</tbody>
+							</table>
+						</div>
+						
+						<!-- Paginación -->
+						<div class="d-flex justify-content-between align-items-center p-3 border-top">
+							<div class="form-group mb-0">
+								<select class="form-select form-select-sm" id="filasPorPagina">
+									<option value="5">5 filas</option>
+									<option value="10" selected>10 filas</option>
+									<option value="20">20 filas</option>
+									<option value="50">50 filas</option>
+								</select>
+							</div>
+							<div class="info-paginacion me-3">Mostrando 1-10 de 25 registros</div>
+							<nav>
+								<ul class="pagination pagination-sm mb-0">
+									<li class="page-item disabled">
+										<a class="page-link" href="#" aria-label="Previous">
+											<span aria-hidden="true">&laquo;</span>
+										</a>
+									</li>
+									<li class="page-item active"><a class="page-link" href="#">1</a></li>
+									<li class="page-item"><a class="page-link" href="#">2</a></li>
+									<li class="page-item">
+										<a class="page-link" href="#" aria-label="Next">
+											<span aria-hidden="true">&raquo;</span>
+										</a>
+									</li>
+								</ul>
+							</nav>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+	
+    <!-- Modal Agregar Usuario -->
+    <div class="modal fade" id="modalAgregarUsuario" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalAgregarUsuarioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h1 class="modal-title fs-5" id="modalAgregarUsuarioLabel">Agregar Nuevo Usuario</h1>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="formAgregarUsuario">
+            <!-- Datos básicos del usuario -->
+            <div class="row mb-4">
+              <div class="col-md-6 mb-3">
+                <label for="idUsuario" class="form-label">ID Usuario</label>
+                <input type="text" class="form-control" id="idUsuario" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="nombreUsuario" class="form-label">Nombre Completo</label>
+                <input type="text" class="form-control" id="nombreUsuario" required>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="departamentoUsuario" class="form-label">Departamento</label>
+                <select class="form-select" id="departamentoUsuario" required>
+                  <option value="" selected disabled>Seleccione un departamento</option>
+                  <option value="1">Soporte</option>
+                  <option value="2">Ventas</option>
+                  <option value="3">TI</option>
+                  <option value="4">Recursos Humanos</option>
+                </select>
+              </div>
+              <div class="col-md-6 mb-3">
+                <label for="contrasenaUsuario" class="form-label">Contraseña</label>
+                <input type="password" class="form-control" id="contrasenaUsuario" required>
+              </div>
+            </div>
+            
+            <!-- Configuración de horario -->
+            <h5 class="mb-3">Configurar Horario</h5>
+            <div class="row g-3 mb-4">
+              <div class="col-md-4">
+                <label for="diaHorario" class="form-label">Día</label>
+                <select class="form-select" id="diaHorario">
+                  <option value="" selected disabled>Seleccione un día</option>
+                  <option value="1">Lunes</option>
+                  <option value="2">Martes</option>
+                  <option value="3">Miércoles</option>
+                  <option value="4">Jueves</option>
+                  <option value="5">Viernes</option>
+                  <option value="6">Sábado</option>
+                  <option value="7">Domingo</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label for="horaEntrada" class="form-label">Hora Entrada</label>
+                <input type="time" class="form-control" id="horaEntrada">
+              </div>
+              <div class="col-md-3">
+                <label for="horaSalida" class="form-label">Hora Salida</label>
+                <input type="time" class="form-control" id="horaSalida">
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="button" class="btn btn-primary w-100" id="btnAgregarHorario">
+                  <i class="bi bi-plus-lg"></i> Agregar
+                </button>
+              </div>
+            </div>
+            
+            <!-- Tabla de horarios agregados -->
+            <div class="table-responsive mb-4">
+              <table class="table table-bordered" id="tablaHorarios">
+                <thead class="table-light">
+                  <tr>
+                    <th>Día</th>
+                    <th>Hora Entrada</th>
+                    <th>Hora Salida</th>
+                    <th>Laborable</th>
+                    <th>Acciones</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Los horarios agregados aparecerán aquí -->
+                  <tr>
+                    <td colspan="5" class="text-center py-3">No hay horarios configurados</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="alert alert-info">
+              <i class="bi bi-info-circle-fill"></i> Los días sin horario configurado se guardarán como <strong>no laborables</strong>.
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="btnGuardarUsuario">Guardar Usuario</button>
+        </div>
+      </div>
+    </div>
+    </div>
+	
+    <!-- Modal Editar Usuario -->
+    <div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-labelledby="modalEditarUsuarioLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalEditarUsuarioLabel">Editar Usuario</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditarUsuario">
+                        <input type="hidden" id="editarIdUsuario">
+                        
+                        <div class="row mb-4">
+                            <div class="col-md-6 mb-3">
+                                <label for="editarNombreUsuario" class="form-label">Nombre Completo</label>
+                                <input type="text" class="form-control" id="editarNombreUsuario" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editarDepartamentoUsuario" class="form-label">Departamento</label>
+                                <select class="form-select" id="editarDepartamentoUsuario" required>
+                                    <option value="" disabled>Seleccione un departamento</option>
+                                    <!-- Opciones se llenarán con JS -->
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="editarContrasenaUsuario" class="form-label">Nueva Contraseña</label>
+                                <input type="password" class="form-control" id="editarContrasenaUsuario" placeholder="Dejar en blanco para no cambiar">
+                            </div>
+                        </div>
+                        
+                        <h5 class="mb-3">Configurar Horario</h5>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label for="diaHorarioEdicion" class="form-label">Día</label>
+                                <select class="form-select" id="diaHorarioEdicion">
+                                    <option value="" selected disabled>Seleccione un día</option>
+                                    <!-- Opciones se llenarán con JS -->
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="horaEntradaEdicion" class="form-label">Hora Entrada</label>
+                                <input type="time" class="form-control" id="horaEntradaEdicion">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="horaSalidaEdicion" class="form-label">Hora Salida</label>
+                                <input type="time" class="form-control" id="horaSalidaEdicion">
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button type="button" class="btn btn-primary w-100" id="btnAgregarHorarioEdicion">
+                                    <i class="bi bi-plus-lg"></i> Agregar
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="table-responsive mb-4">
+                            <table class="table table-bordered" id="tablaHorariosEdicion">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Día</th>
+                                        <th>Hora Entrada</th>
+                                        <th>Hora Salida</th>
+                                        <th>Laborable</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td colspan="5" class="text-center py-3">No hay horarios configurados</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-primary" id="btnGuardarEdicion">Guardar Cambios</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+	<script src="../script/jquery-3.7.1.min.js"></script>
+	<script src="../script/bootstrap.bundle.min.js"></script>
+    <script src="../script/Departamento.js"></script>
+	<script src="../script/global.js"></script>
+</body>
+</html>
