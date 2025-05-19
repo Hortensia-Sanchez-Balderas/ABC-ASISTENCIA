@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>ABC Asistencia - Ver Advertencias</title>
+
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Abel&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="../css/bootstrap-icons.min.css">
+	<link rel="stylesheet" href="../css/bootstrap.min.css">
+	<link rel="stylesheet" href="../css/global.css">
+	<link rel="stylesheet" href="../css/AdvertenciasEmpleado.css">
+
+</head>
+<body class="d-flex" id="body-pd">
+	<header class="header" id="header">
+		<div class="header_toggle"> <i class="bi bi-list" id="header-toggle"></i> </div>
+			<div class="dropdown">
+				<a class="btn p-0 w-auto d-inline-block" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+					<div class="header_profile">
+						<i class="bi bi-person-circle"></i>
+						<p>Empleado</p>
+					</div>
+				</a>
+				<ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink">
+						<li><a class="dropdown-item" href="../Marcador.html">Cerrar sesión</a></li>
+				</ul>
+			</div>
+	
+	</header>
+	<div class="l-navbar" id="nav-bar">
+		<nav class="nav">
+				<div>
+					<a href="#" class="nav_logo">
+						<i class="bi bi-stack nav_logo-icon"></i>
+						<span class="nav_logo-name">ABC Asistencia</span>
+					</a>
+
+					<div class="profile">
+						<i class="bi bi-person-circle nav_profile_icon"></i>
+						<div class="profile_info">
+							<span class="profile_name">Empleado</span>
+							<span class="profile_status">Online</span>
+						</div>
+					</div>
+					<div class="nav_ad">
+						MENÚ 
+					</div>
+
+					<div class="nav_list">
+						<!--ACTIVAR MENU DEPENDIENDO LA PANTALLA QUE ES-->
+						<a href="../pages/DashboardEmpleado.html" class="nav_link">
+							<i class="bi bi-columns-gap nav_icon"></i>
+							<span class="nav_name">Dashboard</span>
+						</a>
+
+						  <div class="nav_item">
+							<div class="nav_link dropdown-toggle ">
+							  <i class="bi bi-pass nav_icon"></i>
+							  <span class="nav_name">Asistencias</span>
+							  <i class="bi bi-chevron-down dropdown-icon"></i>
+							</div>
+							<div class="submenu ">
+							  <a href="../pages/HistorialAsistenciaEmpleado.html" class="submenu_link ">
+								<i class="bi bi-clock-history nav_icon"></i>
+								<span class="nav_name">Historial de Asistencia</span>
+							  </a>
+							</div>
+						  </div>
+
+						<a href="../pages/AdvertenciasEmpleado.html" class="nav_link active">
+							<i class="bi bi-file-earmark-medical nav_icon"></i>
+							<span class="nav_name">Ver advertencias</span>
+						</a>
+					</div>
+				</div>
+		</nav>
+</div>
+
+	    <!--Container Main start-->
+    <div class="bg-light container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-10 col-xl-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom-0">
+                        <h1 class="h4 mb-0">Ver Advertencias</h1>
+                    </div>
+                    <div class="card-body p-0">
+                        <!-- Filtros -->
+                        <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+                            <div class="d-flex align-items-center">
+                                <button class="btn btn-sm btn-outline-secondary me-2">
+                                    <i class="bi bi-arrow-clockwise"></i>
+                                </button>
+                                <div class="input-group input-group-sm" style="width: 200px;">
+                                    <input type="text" class="form-control" placeholder="Buscar advertencia...">
+                                    <button class="btn btn-outline-secondary" type="button">
+                                        <i class="bi bi-search"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="filterDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="bi bi-funnel"></i> Filtros
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="filterDropdown">
+                                    <li><a class="dropdown-item" href="#">Todas</a></li>
+                                    <li><a class="dropdown-item" href="#">No leídas</a></li>
+                                    <li><a class="dropdown-item" href="#">Este mes</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="#">Ordenar por fecha (más reciente)</a></li>
+                                    <li><a class="dropdown-item" href="#">Ordenar por fecha (más antigua)</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                        
+                        <!-- Lista de mensajes -->
+                        <div id="messages-container">
+                            <!-- Mensaje 1 -->
+                            <div class="message-card p-3 border-bottom unread" data-bs-toggle="modal" data-bs-target="#messageModal" data-message-id="1">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <div>
+                                        <div class="message-subject">Retardo en la entrada del 15 de mayo</div>
+                                        <div class="message-sender">De: Administración</div>
+                                    </div>
+                                    <div class="message-time">Hoy, 10:30 AM</div>
+                                </div>
+                                <div class="message-preview">
+                                    Se ha registrado un retardo de 25 minutos en tu entrada del día de hoy. Por favor justifica este retardo con tu supervisor.
+                                </div>
+                            </div>
+                            
+                            <!-- Mensaje 2 -->
+                            <div class="message-card p-3 border-bottom" data-bs-toggle="modal" data-bs-target="#messageModal" data-message-id="2">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <div>
+                                        <div class="message-subject">Recordatorio: Reunión de equipo</div>
+                                        <div class="message-sender">De: Recursos Humanos</div>
+                                    </div>
+                                    <div class="message-time">Ayer, 3:45 PM</div>
+                                </div>
+                                <div class="message-preview">
+                                    Este viernes 17 de mayo tendremos reunión de equipo a las 10:00 AM en la sala de juntas. Por favor confirma tu asistencia.
+                                </div>
+                            </div>
+                            
+                            <!-- Mensaje 3 -->
+                            <div class="message-card p-3 border-bottom" data-bs-toggle="modal" data-bs-target="#messageModal" data-message-id="3">
+                                <div class="d-flex justify-content-between align-items-start mb-1">
+                                    <div>
+                                        <div class="message-subject">Felicitaciones por tu desempeño</div>
+                                        <div class="message-sender">De: Gerencia</div>
+                                    </div>
+                                    <div class="message-time">12 mayo, 9:15 AM</div>
+                                </div>
+                                <div class="message-preview">
+                                    Queremos reconocer tu excelente desempeño durante el último trimestre. ¡Sigue así!
+                                </div>
+                            </div>
+                            
+                            <!-- Sin mensajes (ejemplo) -->
+                            <!-- <div class="empty-messages p-5 text-center">
+                                <i class="bi bi-envelope-open"></i>
+                                <h5 class="mb-1">No hay advertencias</h5>
+                                <p class="mb-0">No tienes ninguna advertencia o mensaje pendiente.</p>
+                            </div> -->
+                        </div>
+                        
+                        <!-- Paginación -->
+                        <nav class="p-3 d-flex justify-content-between align-items-center">
+                            <div class="text-muted small">
+                                Mostrando 1-3 de 3 mensajes
+                            </div>
+                            <ul class="pagination pagination-sm mb-0">
+                                <li class="page-item disabled">
+                                    <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Anterior</a>
+                                </li>
+                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                <li class="page-item">
+                                    <a class="page-link" href="#">Siguiente</a>
+                                </li>
+                            </ul>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    
+    <!-- Modal para ver mensaje completo -->
+    <div class="modal fade" id="messageModal" tabindex="-1" aria-labelledby="messageModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="messageModalLabel">Retardo en la entrada del 15 de mayo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="d-flex justify-content-between mb-4">
+                        <div>
+                            <strong>De:</strong> Administración<br>
+                            <strong>Para:</strong> Tú<br>
+                            <strong>Fecha:</strong> 15 mayo 2025, 10:30 AM
+                        </div>
+                        <div>
+                            <button class="btn btn-sm btn-outline-secondary">
+                                <i class="bi bi-printer"></i> Imprimir
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p>Estimado empleado,</p>
+                        <p>Se ha registrado un retardo de 25 minutos en tu entrada del día de hoy. Según nuestros registros, tu hora de entrada programada es a las 8:00 AM y marcaste entrada a las 8:25 AM.</p>
+                        <p>De acuerdo con el reglamento interno de la empresa, los retardos deben ser justificados ante tu supervisor inmediato dentro de las siguientes 24 horas.</p>
+                        <p>Por favor acude con tu supervisor para justificar este retardo. Si consideras que hubo un error en el registro, también puedes reportarlo.</p>
+                        <p>Atentamente,<br>Departamento de Recursos Humanos</p>
+                    </div>
+                    
+                    <div class="alert alert-light border">
+                        <small class="text-muted">Este es un mensaje oficial del sistema de gestión de asistencias. Por favor no respondas directamente a este mensaje.</small>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                    <button type="button" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Marcar como leído
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+	<script src="../script/jquery-3.7.1.min.js"></script>
+	<script src="../script/bootstrap.bundle.min.js"></script>
+	<script src="../script/global.js"></script>
+	<script src="../script/AdvertenciasEmpleado.js"></script>
+</body>
+</html>
