@@ -9,6 +9,7 @@
 	<link rel="stylesheet" href="../css/bootstrap-icons.min.css">
 	<link rel="stylesheet" href="../css/bootstrap.min.css">
 	<link rel="stylesheet" href="../css/global.css">
+  <link rel="stylesheet" href="../css/Departamento.css">
 </head>
 <body class="d-flex" id="body-pd">
 	<header class="header" id="header">
@@ -132,7 +133,7 @@
 							</div>
 
                             <div class="col-md-4 d-flex justify-content-end gap-2">
-                                <button class="btn btn-primary" id="btnAgregarDepartamento">
+                                <button class="btn btn-primary" id="btnAgregarDepartamento" data-bs-toggle="modal" data-bs-target="#modalAgregarDepartamento">
                                     <i class="bi bi-plus-circle"></i> Agregar Departamento
                                 </button>
                             </div>
@@ -194,188 +195,37 @@
 		</div>
 	</main>
 	
-    <!-- Modal Agregar Usuario -->
-    <div class="modal fade" id="modalAgregarUsuario" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalAgregarUsuarioLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-          <h1 class="modal-title fs-5" id="modalAgregarUsuarioLabel">Agregar Nuevo Usuario</h1>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <form id="formAgregarUsuario">
-            <!-- Datos básicos del usuario -->
-            <div class="row mb-4">
-              <div class="col-md-6 mb-3">
-                <label for="idUsuario" class="form-label">ID Usuario</label>
-                <input type="text" class="form-control" id="idUsuario" required>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label for="nombreUsuario" class="form-label">Nombre Completo</label>
-                <input type="text" class="form-control" id="nombreUsuario" required>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label for="departamentoUsuario" class="form-label">Departamento</label>
-                <select class="form-select" id="departamentoUsuario" required>
-                  <option value="" selected disabled>Seleccione un departamento</option>
-                  <option value="1">Soporte</option>
-                  <option value="2">Ventas</option>
-                  <option value="3">TI</option>
-                  <option value="4">Recursos Humanos</option>
-                </select>
-              </div>
-              <div class="col-md-6 mb-3">
-                <label for="contrasenaUsuario" class="form-label">Contraseña</label>
-                <input type="password" class="form-control" id="contrasenaUsuario" required>
-              </div>
+  <!-- Modal Agregar Departamento -->
+<div class="modal fade" id="modalAgregarDepartamento" tabindex="-1" aria-labelledby="modalAgregarDepartamentoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="modalAgregarDepartamentoLabel">Agregar departamento</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            
-            <!-- Configuración de horario -->
-            <h5 class="mb-3">Configurar Horario</h5>
-            <div class="row g-3 mb-4">
-              <div class="col-md-4">
-                <label for="diaHorario" class="form-label">Día</label>
-                <select class="form-select" id="diaHorario">
-                  <option value="" selected disabled>Seleccione un día</option>
-                  <option value="1">Lunes</option>
-                  <option value="2">Martes</option>
-                  <option value="3">Miércoles</option>
-                  <option value="4">Jueves</option>
-                  <option value="5">Viernes</option>
-                  <option value="6">Sábado</option>
-                  <option value="7">Domingo</option>
-                </select>
-              </div>
-              <div class="col-md-3">
-                <label for="horaEntrada" class="form-label">Hora Entrada</label>
-                <input type="time" class="form-control" id="horaEntrada">
-              </div>
-              <div class="col-md-3">
-                <label for="horaSalida" class="form-label">Hora Salida</label>
-                <input type="time" class="form-control" id="horaSalida">
-              </div>
-              <div class="col-md-2 d-flex align-items-end">
-                <button type="button" class="btn btn-primary w-100" id="btnAgregarHorario">
-                  <i class="bi bi-plus-lg"></i> Agregar
-                </button>
-              </div>
+            <div class="modal-body">
+                <form id="formAgregarDepartamento">
+                    <div class="mb-3">
+                        <label for="nombreDepartamento" class="form-label">Nombre del departamento</label>
+                        <input type="text" class="form-control" id="nombreDepartamento" placeholder="Ej. Cobranza">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="descripcionDepartamento" class="form-label">Descripción (opcional)</label>
+                        <textarea class="form-control" id="descripcionDepartamento" rows="3" placeholder="Añada una descripción del departamento"></textarea>
+                    </div>
+                </form>
             </div>
-            
-            <!-- Tabla de horarios agregados -->
-            <div class="table-responsive mb-4">
-              <table class="table table-bordered" id="tablaHorarios">
-                <thead class="table-light">
-                  <tr>
-                    <th>Día</th>
-                    <th>Hora Entrada</th>
-                    <th>Hora Salida</th>
-                    <th>Laborable</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <!-- Los horarios agregados aparecerán aquí -->
-                  <tr>
-                    <td colspan="5" class="text-center py-3">No hay horarios configurados</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            
-            <div class="alert alert-info">
-              <i class="bi bi-info-circle-fill"></i> Los días sin horario configurado se guardarán como <strong>no laborables</strong>.
-            </div>
-          </form>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-          <button type="button" class="btn btn-primary" id="btnGuardarUsuario">Guardar Usuario</button>
-        </div>
-      </div>
-    </div>
-    </div>
-	
-    <!-- Modal Editar Usuario -->
-    <div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-labelledby="modalEditarUsuarioLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="modalEditarUsuarioLabel">Editar Usuario</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="formEditarUsuario">
-                        <input type="hidden" id="editarIdUsuario">
-                        
-                        <div class="row mb-4">
-                            <div class="col-md-6 mb-3">
-                                <label for="editarNombreUsuario" class="form-label">Nombre Completo</label>
-                                <input type="text" class="form-control" id="editarNombreUsuario" required>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="editarDepartamentoUsuario" class="form-label">Departamento</label>
-                                <select class="form-select" id="editarDepartamentoUsuario" required>
-                                    <option value="" disabled>Seleccione un departamento</option>
-                                    <!-- Opciones se llenarán con JS -->
-                                </select>
-                            </div>
-                            <div class="col-md-6 mb-3">
-                                <label for="editarContrasenaUsuario" class="form-label">Nueva Contraseña</label>
-                                <input type="password" class="form-control" id="editarContrasenaUsuario" placeholder="Dejar en blanco para no cambiar">
-                            </div>
-                        </div>
-                        
-                        <h5 class="mb-3">Configurar Horario</h5>
-                        <div class="row g-3 mb-4">
-                            <div class="col-md-4">
-                                <label for="diaHorarioEdicion" class="form-label">Día</label>
-                                <select class="form-select" id="diaHorarioEdicion">
-                                    <option value="" selected disabled>Seleccione un día</option>
-                                    <!-- Opciones se llenarán con JS -->
-                                </select>
-                            </div>
-                            <div class="col-md-3">
-                                <label for="horaEntradaEdicion" class="form-label">Hora Entrada</label>
-                                <input type="time" class="form-control" id="horaEntradaEdicion">
-                            </div>
-                            <div class="col-md-3">
-                                <label for="horaSalidaEdicion" class="form-label">Hora Salida</label>
-                                <input type="time" class="form-control" id="horaSalidaEdicion">
-                            </div>
-                            <div class="col-md-2 d-flex align-items-end">
-                                <button type="button" class="btn btn-primary w-100" id="btnAgregarHorarioEdicion">
-                                    <i class="bi bi-plus-lg"></i> Agregar
-                                </button>
-                            </div>
-                        </div>
-                        
-                        <div class="table-responsive mb-4">
-                            <table class="table table-bordered" id="tablaHorariosEdicion">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Día</th>
-                                        <th>Hora Entrada</th>
-                                        <th>Hora Salida</th>
-                                        <th>Laborable</th>
-                                        <th>Acciones</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td colspan="5" class="text-center py-3">No hay horarios configurados</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                    <button type="button" class="btn btn-primary" id="btnGuardarEdicion">Guardar Cambios</button>
-                </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="btnGuardarDepartamento">Guardar</button>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Toast Container para mensajes emergentes -->
+<div id="toastContainer" class="position-fixed bottom-0 end-0 p-3" style="z-index: 11"></div>
 
 	<script src="../script/jquery-3.7.1.min.js"></script>
 	<script src="../script/bootstrap.bundle.min.js"></script>
