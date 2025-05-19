@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ABC Asistencia - Generar Advertencias</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Abel&family=Koukhmer+Sleokchher&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../css/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../css/bootstrap.min.css">
+    <link rel="stylesheet" href="../css/global.css">
+    <link rel="stylesheet" href="../css/AdvertenciasAdmin.css">
+    <!-- Quill JS -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+</head>
+<body class="d-flex" id="body-pd">
+    <header class="header" id="header">
+        <div class="header_toggle"> <i class="bi bi-list" id="header-toggle"></i> </div>
+            <div class="dropdown">
+                <a class="btn p-0 w-auto d-inline-block" href="#" role="button" id="dropdownMenuLink" data-bs-toggle="dropdown" aria-expanded="false">
+                    <div class="header_profile">
+                        <i class="bi bi-person-circle"></i>
+                        <p>Admin</p>
+                    </div>
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuLink">
+                        <li><a class="dropdown-item" href="../Marcador.html">Cerrar sesión</a></li>
+                </ul>
+            </div>
+    
+    </header>
+    <div class="l-navbar" id="nav-bar">
+            <nav class="nav">
+                    <div>
+                        <a href="#" class="nav_logo">
+                            <i class="bi bi-stack nav_logo-icon"></i>
+                            <span class="nav_logo-name">ABC Asistencia</span>
+                        </a>
+
+                        <div class="profile">
+                            <i class="bi bi-person-circle nav_profile_icon"></i>
+                            <div class="profile_info">
+                                <span class="profile_name">Admin</span>
+                                <span class="profile_status">Online</span>
+                            </div>
+                        </div>
+                        <div class="nav_ad">
+                            MENÚ 
+                        </div>
+
+                        <div class="nav_list">
+                            <!--ACTIVAR MENU DEPENDIENDO LA PANTALLA QUE ES-->
+                            <a href="../pages/DashboardAdmin.html" class="nav_link ">
+                                <i class="bi bi-columns-gap nav_icon"></i>
+                                <span class="nav_name">Dashboard</span>
+                            </a>
+
+                            <div class="nav_item">
+                                <div class="nav_link dropdown-toggle">
+                                  <i class="bi bi-box-arrow-in-right nav_icon"></i>
+                                  <span class="nav_name">Acceso</span>
+                                  <i class="bi bi-chevron-down dropdown-icon"></i>
+                                </div>
+                                <div class="submenu">
+                                  <a href="../pages/Usuarios.html" class="submenu_link">
+                                    <i class="bi bi-people nav_icon"></i>
+                                    <span class="nav_name">Usuarios</span>
+                                  </a>
+                                  <a href="../pages/Departamento.html" class="submenu_link">
+                                    <i class="bi bi-building nav_icon"></i>
+                                    <span class="nav_name">Departamento</span>
+                                  </a>
+                                </div>
+                              </div>
+
+                              <div class="nav_item">
+                                <div class="nav_link dropdown-toggle ">
+                                  <i class="bi bi-pass nav_icon"></i>
+                                  <span class="nav_name">Asistencias</span>
+                                  <i class="bi bi-chevron-down dropdown-icon"></i>
+                                </div>
+                                <div class="submenu">
+                                  <a href="../pages/ListaAsistencia.html" class="submenu_link ">
+                                    <i class="bi bi-calendar-check nav_icon"></i>
+                                    <span class="nav_name">Asistencia diaria</span>
+                                  </a>
+                                  <a href="../pages/HistorialAsistenciaAdmin.html" class="submenu_link">
+                                    <i class="bi bi-clock-history nav_icon"></i>
+                                    <span class="nav_name">Historial de Asistencia</span>
+                                  </a>
+                                  <a href="../pages/Reportes.html" class="submenu_link">
+                                    <i class="bi bi-file-earmark-bar-graph nav_icon"></i>
+                                    <span class="nav_name">Reportes</span>
+                                  </a>
+                                </div>
+                              </div>
+
+                            <a href="../pages/AdvertenciasAdmin.html" class="nav_link active">
+                                <i class="bi bi-file-earmark-medical nav_icon"></i>
+                                <span class="nav_name">Crear advertencia</span>
+                            </a>
+                        </div>
+                    </div>
+            </nav>
+    </div>
+
+    <!--Container Main start-->
+    <div class="container-fluid py-4">
+        <div class="row justify-content-center">
+            <div class="col-12 col-lg-8">
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header bg-white border-bottom-0">
+                        <h1 class="h4 mb-0">Generar Advertencia</h1>
+                    </div>
+                    <div class="card-body">
+                        <form id="advertenciaForm">
+                            <!-- Selección de usuario -->
+                            <div class="mb-4">
+								<label for="selectUsuario" class="form-label fw-bold">Seleccione un usuario</label>
+								<select class="form-control select2-usuario" id="selectUsuario" required>
+									<option value="" selected disabled>Busque por nombre, ID o departamento...</option>
+								</select>
+							</div>
+                            
+                            <!-- Asunto -->
+                            <div class="mb-4">
+                                <label for="inputAsunto" class="form-label fw-bold">Asunto</label>
+                                <input type="text" class="form-control" id="inputAsunto" placeholder="Escriba un asunto" required>
+                            </div>
+                            
+                            <!-- Editor de mensaje -->
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Mensaje</label>
+                                <div id="editor" style="height: 200px;"></div>
+                                <input type="hidden" id="mensajeHTML" name="mensajeHTML">
+                            </div>
+                            
+                            <!-- Botones -->
+                            <div class="d-flex justify-content-end gap-2">
+                                <button type="button" class="btn btn-outline-secondary" id="btnCancelar">
+                                    Cancelar
+                                </button>
+                                <button type="submit" class="btn btn-primary" id="btnEnviar">
+                                    <i class="bi bi-send-fill me-1"></i> Enviar Advertencia
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+        
+    <!-- Scripts -->
+    <script src="../script/jquery-3.7.1.min.js"></script>
+    <script src="../script/bootstrap.bundle.min.js"></script>
+    <script src="../script/global.js"></script>
+    <!-- Quill JS -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+    <script src="../script/AdvertenciasAdmin.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+</body>
+</html>
