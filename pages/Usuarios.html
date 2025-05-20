@@ -116,7 +116,7 @@
 							<div class="col-md-5">
 								<div class="input-group">
 									<span class="input-group-text bg-light"><i class="bi bi-search"></i></span>
-									<input type="text" class="form-control" placeholder="Buscar (ID o nombre)" id="buscarAsistencia">
+									<input type="text" class="form-control" placeholder="Buscar (ID o nombre)" id="buscarUsuario">
 								</div>
 							</div>
 							
@@ -144,15 +144,16 @@
 				<div class="card shadow-sm">
 					<div class="card-body p-0">
 						<div class="table-responsive">
-							<table class="table table-hover mb-0" id="tablaAsistenciasdiario">
+							<table class="table table-hover mb-0" id="tablaUsuarios">
 								<thead class="bg-primary text-white">
 									<tr>
 										<th>ID Usuario</th>
 										<th>Nombre</th>
-                                        <th>Departamento</th>
+                    <th>Departamento</th>
+                    <th>Tipo de Usuario</th>
 										<th>Hora Entrada</th>
 										<th>Hora salida</th>
-                                        <th>Contraseña</th>
+                    <th>Contraseña</th>
 										<th>Editar</th>
 										<th>Eliminar</th>
 									</tr>
@@ -230,8 +231,17 @@
                 <label for="contrasenaUsuario" class="form-label">Contraseña</label>
                 <input type="password" class="form-control" id="contrasenaUsuario" required>
               </div>
+
+              <div class="col-md-6 mb-3">
+              <label for="rolUsuario" class="form-label">Tipo de Usuario</label>
+              <select class="form-select" id="rolUsuario" required>
+                <option value="" selected disabled>Seleccione un rol</option>
+                <option value="1">Administrador</option>
+                <option value="2">Empleado</option>
+              </select>
             </div>
-            
+            </div>
+
             <!-- Configuración de horario -->
             <h5 class="mb-3">Configurar Horario</h5>
             <div class="row g-3 mb-4">
@@ -325,7 +335,18 @@
                                 <label for="editarContrasenaUsuario" class="form-label">Nueva Contraseña</label>
                                 <input type="password" class="form-control" id="editarContrasenaUsuario" placeholder="Dejar en blanco para no cambiar">
                             </div>
+
+                            <div class="col-md-6 mb-3">
+                            <label for="editarRolUsuario" class="form-label">Rol</label>
+                            <select class="form-select" id="editarRolUsuario" required>
+                                <option value="" disabled>Seleccione un rol</option>
+                                <option value="1">Administrador</option>
+                                <option value="2">Empleado</option>
+                            </select>
                         </div>
+                        </div>
+
+                        
                         
                         <h5 class="mb-3">Configurar Horario</h5>
                         <div class="row g-3 mb-4">

@@ -9,68 +9,102 @@ let paginaActual = 1;
 // URL base de la API (debería ser configurada según el entorno)
 const API_BASE_URL = 'https://api.abcd-asistencia.com/v1';
 
-/**
- * Función para obtener datos de la API
- * Esta función reemplazará la inicialización con datos de ejemplo
- * @param {Date} fechaInicio - Fecha de inicio para el filtro
- * @param {Date} fechaFin - Fecha de fin para el filtro
- * @returns {Promise<Array>} - Promesa con los datos de asistencia
- */
+
+// Reemplaza la función obtenerDatosDeAPI con esta versión simulada
 async function obtenerDatosDeAPI(fechaInicio = null, fechaFin = null) {
-    try {
-        // Construir la URL con parámetros de fecha si existen
-        let url = `${API_BASE_URL}/asistencias/historial`;
+    // Simulamos un retraso de red de 800ms
+    await new Promise(resolve => setTimeout(resolve, 800));
+    
+    // Generamos datos de ejemplo para 25 empleados
+    const datosSimulados = [];
+    const nombres = [
+        "Juan Pérez", "María García", "Carlos López", "Ana Martínez", "Luis Rodríguez",
+        "Laura Sánchez", "Pedro Ramírez", "Sofía Cruz", "Jorge Hernández", "Mónica Díaz",
+        "Fernando Gómez", "Elena Ruiz", "Roberto Morales", "Adriana Ortega", "Miguel Castro",
+        "Isabel Vargas", "Diego Mendoza", "Patricia Silva", "Ricardo Rojas", "Gabriela Torres",
+        "José Núñez", "Lucía Guzmán", "Arturo Medina", "Verónica Herrera", "Raúl Flores"
+    ];
+    
+    const departamentos = ["Ventas", "Recursos Humanos", "TI", "Contabilidad", "Marketing", "Operaciones"];
+    
+    // Generar datos para cada empleado
+    for (let i = 0; i < 25; i++) {
+        const id = i + 1; // ID numérico simple (1-25)
+        const minutosRetardo = Math.floor(Math.random() * 300); // 0-300 minutos
+        const retardos = Math.floor(Math.random() * 10); // 0-10 retardos
+        const faltas = Math.floor(Math.random() * 5); // 0-5 faltas
+        const salidasTemprano = Math.floor(Math.random() * 8); // 0-8 salidas temprano
+        const asistencias = 22 - faltas; // Asumiendo 22 días laborales
+        const horasTrabajadas = (asistencias * 8) - (minutosRetardo / 60); // 8 horas por día
         
-        // Añadir parámetros de fecha si están presentes
-        const params = new URLSearchParams();
-        if (fechaInicio) params.append('fechaInicio', fechaInicio.toISOString().split('T')[0]);
-        if (fechaFin) params.append('fechaFin', fechaFin.toISOString().split('T')[0]);
-        
-        if (params.toString()) url += `?${params.toString()}`;
-        
-        // ENDPOINT: GET /asistencias/historial
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}` // Asumiendo autenticación JWT
-            }
+        datosSimulados.push({
+            idUsuario: id, // Ahora es numérico
+            nombre: nombres[i],
+            horasRetardo: (minutosRetardo / 60).toFixed(2) + " hrs",
+            cantidadRetardos: retardos,
+            cantidadFaltas: faltas,
+            salidasTemprano: salidasTemprano,
+            asistenciasTotales: asistencias,
+            horasTrabajadas: horasTrabajadas.toFixed(2) + " hrs",
+            departamento: departamentos[Math.floor(Math.random() * departamentos.length)]
         });
-        
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // Mapear los datos de la API al formato esperado por nuestra tabla
-        return data.map(item => ({
-            idUsuario: item.id_empleado,
-            nombre: item.nombre_completo,
-            horasRetardo: `${item.minutos_retardo / 60} hrs`, // Convertir minutos a horas
-            cantidadRetardos: item.cantidad_retardos,
-            cantidadFaltas: item.cantidad_faltas,
-            salidasTemprano: item.cantidad_salidas_temprano,
-            asistenciasTotales: item.asistencias_totales,
-            horasTrabajadas: item.horas_trabajadas
-        }));
-        
-    } catch (error) {
-        console.error('Error al obtener datos de la API:', error);
-        mostrarError('No se pudieron cargar los datos. Intente nuevamente.');
-        return [];
     }
+    
+    // Si hay filtros de fecha, simulamos que afectan los resultados
+    if (fechaInicio || fechaFin) {
+        // En una simulación real, podríamos ajustar los datos basados en las fechas
+        console.log(`Filtrando por fechas: ${fechaInicio?.toISOString() || 'sin inicio'} - ${fechaFin?.toISOString() || 'sin fin'}`);
+        
+        // Simulamos que algunos registros no cumplen con el filtro
+        return datosSimulados.slice(0, Math.floor(Math.random() * 15) + 10); // Devuelve 10-24 registros
+    }
+    
+    return datosSimulados;
 }
 
-/**
- * Función para mostrar un mensaje de error al usuario
- * @param {string} mensaje - Mensaje de error a mostrar
- */
+// Modifica la función mostrarError para que use un toast más elegante
 function mostrarError(mensaje) {
-    // Implementar lógica para mostrar errores al usuario
-    // Por ejemplo, usando un toast o un alert
-    console.error(mensaje);
-    alert(mensaje); // Esto es temporal, debería ser reemplazado por un componente de UI mejor
+    const toastHTML = `
+        <div class="toast align-items-center text-white bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="d-flex">
+                <div class="toast-body">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    ${mensaje}
+                </div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+        </div>
+    `;
+    
+    const toastContainer = document.getElementById('toastContainer') || document.createElement('div');
+    toastContainer.id = 'toastContainer';
+    toastContainer.style.position = 'fixed';
+    toastContainer.style.top = '20px';
+    toastContainer.style.right = '20px';
+    toastContainer.style.zIndex = '1100';
+    document.body.appendChild(toastContainer);
+    
+    toastContainer.innerHTML = toastHTML;
+    $('.toast').toast('show');
+}
+
+// Modifica la función mostrarCargando para un spinner más profesional
+function mostrarCargando(mostrar) {
+    const tabla = document.querySelector('#tablaAsistencias tbody');
+    if (mostrar) {
+        tabla.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-5">
+                    <div class="d-flex justify-content-center align-items-center">
+                        <div class="spinner-border text-primary me-3" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <span class="text-muted">Cargando datos de asistencia...</span>
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
 }
 
 /**
@@ -114,21 +148,8 @@ async function aplicarFiltros() {
     }
 }
 
-/**
- * Función para mostrar/ocultar indicador de carga
- * @param {boolean} mostrar - True para mostrar, false para ocultar
- */
-function mostrarCargando(mostrar) {
-    // Implementar lógica para mostrar un spinner o indicador de carga
-    const tabla = document.querySelector('#tablaAsistencias tbody');
-    if (mostrar) {
-        tabla.innerHTML = '<tr><td colspan="8" class="text-center py-4"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div></td></tr>';
-    }
-}
 
-/**
- * Función para actualizar la tabla con los datos paginados
- */
+// Actualiza la función actualizarTabla para incluir estilos condicionales
 function actualizarTabla() {
     const inicio = (paginaActual - 1) * filasPorPagina;
     const fin = inicio + filasPorPagina;
@@ -138,12 +159,20 @@ function actualizarTabla() {
     tbody.innerHTML = '';
     
     if (datosPaginados.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">No se encontraron resultados</td></tr>';
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="text-center py-4 text-muted">
+                    <i class="bi bi-database-exclamation me-2"></i>
+                    No se encontraron resultados
+                </td>
+            </tr>
+        `;
         return;
     }
     
     datosPaginados.forEach(asistencia => {
         const tr = document.createElement('tr');
+        
         tr.innerHTML = `
             <td>${asistencia.idUsuario}</td>
             <td>${asistencia.nombre}</td>
@@ -157,6 +186,7 @@ function actualizarTabla() {
         tbody.appendChild(tr);
     });
 }
+
 
 /**
  * Función para actualizar la paginación

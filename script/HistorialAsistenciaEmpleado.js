@@ -11,72 +11,117 @@ let paginaActual = 1;
 // URL base de la API (ajusta según tu entorno)
 const API_BASE_URL = 'https://api.abcd-asistencia.com/v1';
 
-/**
- * Función para obtener datos del empleado actual desde la API
- * @param {Date} fechaInicio - Fecha de inicio para el filtro
- * @param {Date} fechaFin - Fecha de fin para el filtro
- * @returns {Promise<Array>} - Promesa con los datos de asistencia del empleado
- */
-async function obtenerDatosEmpleado(fechaInicio = null, fechaFin = null) {
-    try {
-        // Obtener ID del empleado del localStorage o de la sesión
-        const empleadoId = localStorage.getItem('empleadoId') || obtenerIdEmpleadoDeSesion();
-        
-        if (!empleadoId) {
-            throw new Error('No se pudo identificar al empleado');
-        }
 
-        // Construir la URL con parámetros
-        let url = `${API_BASE_URL}/empleados/${empleadoId}/asistencias`;
+ // Simulación de datos para un empleado específico
+async function obtenerDatosEmpleado(fechaInicio = null, fechaFin = null) {
+    // Simulamos un retraso de red de 500-800ms
+    await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 300));
+    
+    // Datos simulados para 30 días (aproximadamente 1 mes)
+    const datosSimulados = [];
+    const hoy = new Date();
+    const dias = 30;
+    
+    // Información base del empleado
+    const empleadoId = localStorage.getItem('empleadoId') || '12345';
+    const departamentos = ['Ventas', 'Recursos Humanos', 'TI', 'Contabilidad', 'Marketing'];
+    const deptoActual = departamentos[empleadoId.charCodeAt(0) % departamentos.length];
+    
+    // Generar datos para cada día
+    for (let i = 0; i < dias; i++) {
+        const fecha = new Date(hoy);
+        fecha.setDate(hoy.getDate() - i);
         
-        const params = new URLSearchParams();
-        if (fechaInicio) params.append('fechaInicio', fechaInicio.toISOString().split('T')[0]);
-        if (fechaFin) params.append('fechaFin', fechaFin.toISOString().split('T')[0]);
+        // Saltar fines de semana (sábado=6, domingo=0)
+        if (fecha.getDay() === 0 || fecha.getDay() === 6) continue;
         
-        if (params.toString()) url += `?${params.toString()}`;
+        // Formatear fecha para display (sin hora)
+        const fechaFormateada = fecha.toISOString().split('T')[0];
         
-        // ENDPOINT: GET /empleados/{id}/asistencias
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
-            }
-        });
+        // Determinar si es un día laboral normal, con retardo o falta
+        const tipoDia = Math.random();
         
-        if (!response.ok) {
-            throw new Error(`Error HTTP: ${response.status}`);
+        // Día normal (70% de probabilidad)
+        if (tipoDia < 0.7) {
+            const horaEntrada = new Date(fecha);
+            horaEntrada.setHours(8 + Math.floor(Math.random() * 2)); // Entre 8:00 y 9:59
+            horaEntrada.setMinutes(Math.floor(Math.random() * 60));
+            
+            const horaSalida = new Date(horaEntrada);
+            horaSalida.setHours(horaEntrada.getHours() + 8 + Math.floor(Math.random() * 2)); // 8-9 horas después
+            
+            const minutosTrabajados = (horaSalida - horaEntrada) / (1000 * 60);
+            
+            datosSimulados.push({
+                fecha: fechaFormateada, // Guardamos en formato YYYY-MM-DD para filtrado
+                dia: fecha.toLocaleDateString('es-ES', { weekday: 'short', day: '2-digit', month: 'short' }),
+                horaEntrada: horaEntrada.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+                horaSalida: horaSalida.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+                horasTrabajadas: formatearHorasTrabajadas(minutosTrabajados),
+                departamento: deptoActual
+            });
         }
-        
-        const data = await response.json();
-        
-        // Mapear los datos al formato de tu tabla
-        return data.map(item => ({
-            dia: new Date(item.fecha).toLocaleDateString('es-ES'),
-            horaEntrada: item.hora_entrada || '--:--',
-            horaSalida: item.hora_salida || '--:--',
-            horasTrabajadas: formatearHorasTrabajadas(item.minutos_trabajados),
-            departamento: item.departamento || 'No asignado'
-        }));
-        
-    } catch (error) {
-        console.error('Error al obtener datos del empleado:', error);
-        mostrarError('No se pudieron cargar tus datos de asistencia. Intente nuevamente.');
-        return [];
+        // Retardo (20% de probabilidad)
+        else if (tipoDia < 0.9) {
+            const horaEntrada = new Date(fecha);
+            horaEntrada.setHours(10 + Math.floor(Math.random() * 3)); // Entre 10:00 y 12:59 (retardo)
+            horaEntrada.setMinutes(Math.floor(Math.random() * 60));
+            
+            const horaSalida = new Date(horaEntrada);
+            horaSalida.setHours(horaEntrada.getHours() + 7 + Math.floor(Math.random() * 2)); // 7-8 horas después
+            
+            const minutosTrabajados = (horaSalida - horaEntrada) / (1000 * 60);
+            
+            datosSimulados.push({
+                fecha: fechaFormateada,
+                dia: fecha.toLocaleDateString('es-ES', { weekday: 'short', day: '2-digit', month: 'short' }),
+                horaEntrada: horaEntrada.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+                horaSalida: horaSalida.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+                horasTrabajadas: formatearHorasTrabajadas(minutosTrabajados),
+                departamento: deptoActual
+            });
+        }
+        // Falta (10% de probabilidad)
+        else {
+            datosSimulados.push({
+                fecha: fechaFormateada,
+                dia: fecha.toLocaleDateString('es-ES', { weekday: 'short', day: '2-digit', month: 'short' }),
+                horaEntrada: '--:--',
+                horaSalida: '--:--',
+                horasTrabajadas: '--',
+                departamento: deptoActual
+            });
+        }
     }
+    // Aplicar filtros de fecha si existen
+    if (fechaInicio || fechaFin) {
+        return datosSimulados.filter(item => {
+            const diaItem = new Date(item.fecha);
+            return (!fechaInicio || diaItem >= fechaInicio) && 
+                   (!fechaFin || diaItem <= fechaFin);
+        });
+    }
+    
+    return datosSimulados;
 }
 
-/**
- * Función para formatear minutos a horas trabajadas
- * @param {number} minutos - Minutos trabajados
- * @returns {string} - Horas formateadas (ej. "8h 30m")
- */
+// Función para formatear horas trabajadas (se mantiene igual)
 function formatearHorasTrabajadas(minutos) {
     if (!minutos || isNaN(minutos)) return '--';
     const horas = Math.floor(minutos / 60);
     const mins = minutos % 60;
     return `${horas}h ${mins}m`;
 }
+
+// Función para simular la obtención del ID del empleado
+function obtenerIdEmpleadoDeSesion() {
+    // En un entorno real, esto vendría de tu sistema de autenticación
+    // Para la simulación, usaremos un ID fijo o del localStorage
+    return localStorage.getItem('empleadoId') || '12345';
+}
+
+// Ejemplo de cómo establecer el ID del empleado al iniciar sesión
+// localStorage.setItem('empleadoId', '12345');
 
 /**
  * Función para mostrar un mensaje de error al usuario
@@ -233,6 +278,11 @@ async function limpiarFiltros() {
  * Función para inicializar la página para empleados
  */
 async function inicializarPagina() {
+    // Asegurarnos de que haya un ID de empleado
+    if (!localStorage.getItem('empleadoId')) {
+        localStorage.setItem('empleadoId', '12345'); // ID por defecto para pruebas
+    }
+    
     // Configurar fechas por defecto (último mes)
     const hoy = new Date();
     const mesPasado = new Date();

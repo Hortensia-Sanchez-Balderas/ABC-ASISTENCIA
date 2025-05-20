@@ -6,55 +6,96 @@ let paginaActual = 1;
 
 // ENDPOINT: Obtener lista completa de departamentos (GET)
 function cargarDepartamentos() {
-    $.ajax({
-        url: '/api/departamentos',
-        type: 'GET',
-        dataType: 'json',
-        success: function(response) {
-            departamentosCompletos = response.data.map(depto => ({
-                id: depto.id_departamento,
-                nombre: depto.nombre,
-                descripcion: depto.descripcion || 'Sin descripción',
-                fechaRegistro: formatearFecha(depto.fecha_registro) || '--/--/----'
-            }));
-            departamentosFiltrados = [...departamentosCompletos];
-            actualizarTablaDepartamentos();
-            actualizarPaginacion();
-        },
-        error: function(xhr, status, error) {
-            console.error('Error al cargar departamentos:', error);
-            mostrarError('No se pudieron cargar los departamentos. Intente nuevamente.');
-        }
-    });
+  // Simulamos un retraso de red
+  setTimeout(() => {
+    departamentosCompletos = [
+      {
+        id: 1,
+        nombre: "Ventas",
+        descripcion: "Equipo encargado de las ventas y relaciones con clientes",
+        fechaRegistro: "15/03/2023"
+      },
+      {
+        id: 2,
+        nombre: "Recursos Humanos",
+        descripcion: "Gestión del talento humano en la organización",
+        fechaRegistro: "20/03/2023"
+      },
+      {
+        id: 3,
+        nombre: "Tecnología de la Información",
+        descripcion: "Soporte y desarrollo de sistemas informáticos",
+        fechaRegistro: "25/03/2023"
+      },
+      {
+        id: 4,
+        nombre: "Contabilidad",
+        descripcion: "Gestión financiera y contable de la empresa",
+        fechaRegistro: "01/04/2023"
+      },
+      {
+        id: 5,
+        nombre: "Marketing",
+        descripcion: "Estrategias de publicidad y posicionamiento de marca",
+        fechaRegistro: "05/04/2023"
+      }
+    ];
+    
+    departamentosFiltrados = [...departamentosCompletos];
+    actualizarTablaDepartamentos();
+    actualizarPaginacion();
+    
+    // Simulamos también la respuesta de la API para el select de departamentos en otras pantallas
+    if (typeof window.departamentosDisponibles === 'undefined') {
+      window.departamentosDisponibles = departamentosCompletos.map(depto => ({
+        id_departamento: depto.id,
+        nombre: depto.nombre
+      }));
+    }
+  }, 800);
 }
 
 // ENDPOINT: Agregar nuevo departamento (POST)
+
+// Simula la función agregarDepartamento()
 function agregarDepartamento(nombre, descripcion) {
-    return $.ajax({
-        url: '/api/departamentos',
-        type: 'POST',
-        dataType: 'json',
-        contentType: 'application/json',
-        data: JSON.stringify({
-            nombre: nombre,
-            descripcion: descripcion
-        }),
-        success: function(response) {
-            mostrarExito('Departamento agregado correctamente');
-            cargarDepartamentos(); // Recargar la lista
-            $('#modalAgregarDepartamento').modal('hide');
-            resetFormularioDepartamento();
-        },
-        error: function(xhr, status, error) {
-            console.error('Error al agregar departamento:', error);
-            let errorMsg = 'Error al agregar departamento';
-            if (xhr.responseJSON && xhr.responseJSON.message) {
-                errorMsg = xhr.responseJSON.message;
-            }
-            mostrarError(errorMsg);
-        }
-    });
+  return new Promise((resolve) => {
+    // Simulamos un retraso de red
+    setTimeout(() => {
+      // Generar un nuevo ID
+      const nuevoId = Math.max(...departamentosCompletos.map(d => d.id), 0) + 1;
+      
+      const nuevoDepartamento = {
+        id: nuevoId,
+        nombre: nombre,
+        descripcion: descripcion,
+        fechaRegistro: new Date().toLocaleDateString('es-ES')
+      };
+      
+      // Agregar a los arrays
+      departamentosCompletos.unshift(nuevoDepartamento);
+      departamentosFiltrados.unshift(nuevoDepartamento);
+      
+      // Actualizar también la variable global para otros selects
+      window.departamentosDisponibles.unshift({
+        id_departamento: nuevoId,
+        nombre: nombre
+      });
+      
+      // Actualizar la UI
+      actualizarTablaDepartamentos();
+      actualizarPaginacion();
+      
+      // Mostrar mensaje de éxito
+      mostrarExito('Departamento agregado correctamente (simulado)');
+      $('#modalAgregarDepartamento').modal('hide');
+      resetFormularioDepartamento();
+      
+      resolve({ success: true });
+    }, 600);
+  });
 }
+
 
 // Función para resetear el formulario
 function resetFormularioDepartamento() {
@@ -95,7 +136,7 @@ function actualizarTablaDepartamentos() {
     tbody.innerHTML = '';
 
     if (departamentosPaginados.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="3" class="text-center py-4">No se encontraron resultados</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">No se encontraron resultados</td></tr>';
         return;
     }
 
@@ -105,6 +146,16 @@ function actualizarTablaDepartamentos() {
             <td>${depto.nombre}</td>
             <td>${depto.descripcion}</td>
             <td>${depto.fechaRegistro}</td>
+            <td>
+                <button class="btn btn-sm btn-outline-primary btn-editar-departamento" data-id="${depto.id}">
+                    <i class="bi bi-pencil-square"></i>
+                </button>
+            </td>
+            <td>
+                <button class="btn btn-sm btn-outline-danger btn-eliminar-departamento" data-id="${depto.id}">
+                    <i class="bi bi-trash"></i>
+                </button>
+            </td>
         `;
         tbody.appendChild(tr);
     });
@@ -210,6 +261,74 @@ function formatearFecha(fecha) {
     return date.toLocaleDateString('es-ES');
 }
 
+//////////////////////////////////MODAL EDICION
+// Función para mostrar el modal de edición
+function mostrarModalEditarDepartamento(id) {
+    const departamento = departamentosCompletos.find(d => d.id == id);
+    if (!departamento) {
+        mostrarError('Departamento no encontrado');
+        return;
+    }
+
+    document.getElementById('editarIdDepartamento').value = departamento.id;
+    document.getElementById('editarNombreDepartamento').value = departamento.nombre;
+    document.getElementById('editarDescripcionDepartamento').value = departamento.descripcion;
+
+    const modal = new bootstrap.Modal(document.getElementById('modalEditarDepartamento'));
+    modal.show();
+}
+
+// Función para guardar los cambios al editar
+function guardarEdicionDepartamento() {
+    const id = document.getElementById('editarIdDepartamento').value;
+    const nombre = document.getElementById('editarNombreDepartamento').value.trim();
+    const descripcion = document.getElementById('editarDescripcionDepartamento').value.trim();
+
+    if (!nombre) {
+        mostrarError('El nombre del departamento es requerido');
+        return;
+    }
+
+    // Simulación de actualización (en un entorno real sería una llamada AJAX)
+    const index = departamentosCompletos.findIndex(d => d.id == id);
+    if (index !== -1) {
+        departamentosCompletos[index] = {
+            ...departamentosCompletos[index],
+            nombre: nombre,
+            descripcion: descripcion
+        };
+
+        // Actualizar también en departamentosFiltrados si existe
+        const filtradoIndex = departamentosFiltrados.findIndex(d => d.id == id);
+        if (filtradoIndex !== -1) {
+            departamentosFiltrados[filtradoIndex] = {...departamentosCompletos[index]};
+        }
+
+        mostrarExito('Departamento actualizado correctamente');
+        actualizarTablaDepartamentos();
+        
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarDepartamento'));
+        modal.hide();
+    } else {
+        mostrarError('No se encontró el departamento para actualizar');
+    }
+}
+
+// Función para eliminar un departamento
+function eliminarDepartamento(id) {
+    if (!confirm('¿Está seguro que desea eliminar este departamento?')) {
+        return;
+    }
+
+    // Simulación de eliminación (en un entorno real sería una llamada AJAX)
+    departamentosCompletos = departamentosCompletos.filter(d => d.id != id);
+    departamentosFiltrados = departamentosFiltrados.filter(d => d.id != id);
+
+    mostrarExito('Departamento eliminado correctamente');
+    actualizarTablaDepartamentos();
+    actualizarPaginacion();
+}
+
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
     // Inicializar datos
@@ -273,4 +392,20 @@ document.addEventListener('DOMContentLoaded', function() {
     $('#modalAgregarDepartamento').on('hidden.bs.modal', function() {
         resetFormularioDepartamento();
     });
+
+    // Evento para editar departamento
+    document.querySelector('#tablaAsistenciasdiario').addEventListener('click', function(e) {
+        if (e.target.closest('.btn-editar-departamento')) {
+            const id = e.target.closest('.btn-editar-departamento').getAttribute('data-id');
+            mostrarModalEditarDepartamento(id);
+        }
+        
+        if (e.target.closest('.btn-eliminar-departamento')) {
+            const id = e.target.closest('.btn-eliminar-departamento').getAttribute('data-id');
+            eliminarDepartamento(id);
+        }
+    });
+
+    // Evento para guardar edición
+    document.getElementById('btnGuardarEdicionDepartamento').addEventListener('click', guardarEdicionDepartamento);
 });
