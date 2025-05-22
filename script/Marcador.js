@@ -1,7 +1,10 @@
-document.getElementById('submit-btn').addEventListener('click', function() {
+const apiPath = "https://abcd-asistencia.onrender.com"; // URL de la API para iniciar sesión
+
+document.getElementById('submit-btn').addEventListener('click', async function() {
     let id = document.getElementById('id-input').value;
     if (id) {
-        appendAlert(``,'strong-success', `Nombre: Juan Peréz [${id}]`, true);
+        // appendAlert(``,'strong-success', `Nombre: Juan Peréz [${id}]`, true);
+      await marcarAsistencia(id);
     } else {
         appendAlert('Por favor, ingresa un ID.', 'danger', 'Error!', false);
     }
@@ -26,3 +29,25 @@ const appendAlert = (message, type, heading, showAdditionalContent) => {
 
   alertContainer.append(wrapper);
 };
+
+const marcarAsistencia = async (idEmpleado) => {
+  try {
+    const response = await fetch(`${apiPath}/asistencias/marcar-asistencia`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ idEmpleado })
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al marcar asistencia');
+    }
+
+    const data = await response.json();
+    appendAlert(`Asistencia marcada para el ID: ${idEmpleado}`, 'success', 'Éxito!', true);
+    console.log({data});
+  } catch (error) {
+    appendAlert(error.message, 'danger', 'Error!', false);
+  }
+}

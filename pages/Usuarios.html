@@ -151,8 +151,6 @@
 										<th>Nombre</th>
                     <th>Departamento</th>
                     <th>Tipo de Usuario</th>
-										<th>Hora Entrada</th>
-										<th>Hora salida</th>
                     <th>Contraseña</th>
 										<th>Editar</th>
 										<th>Eliminar</th>
@@ -214,7 +212,7 @@
             <div class="row mb-4">
               <div class="col-md-6 mb-3">
                 <label for="idUsuario" class="form-label">ID Usuario</label>
-                <input type="text" class="form-control" id="idUsuario" required>
+                <input type="text" class="form-control" id="idUsuario" required readonly>
               </div>
               <div class="col-md-6 mb-3">
                 <label for="nombreUsuario" class="form-label">Nombre Completo</label>
@@ -236,8 +234,8 @@
               <label for="rolUsuario" class="form-label">Tipo de Usuario</label>
               <select class="form-select" id="rolUsuario" required>
                 <option value="" selected disabled>Seleccione un rol</option>
-                <option value="1">Administrador</option>
-                <option value="2">Empleado</option>
+                <option value="3">Administrador</option>
+                <option value="4">Empleado</option>
               </select>
             </div>
             </div>
@@ -340,8 +338,8 @@
                             <label for="editarRolUsuario" class="form-label">Rol</label>
                             <select class="form-select" id="editarRolUsuario" required>
                                 <option value="" disabled>Seleccione un rol</option>
-                                <option value="1">Administrador</option>
-                                <option value="2">Empleado</option>
+                                <option value="3">Administrador</option>
+                                <option value="4">Empleado</option>
                             </select>
                         </div>
                         </div>
