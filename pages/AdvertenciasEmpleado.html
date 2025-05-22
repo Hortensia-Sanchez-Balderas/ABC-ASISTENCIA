@@ -122,43 +122,15 @@
                             <div class="message-card p-3 border-bottom unread" data-bs-toggle="modal" data-bs-target="#messageModal" data-message-id="1">
                                 <div class="d-flex justify-content-between align-items-start mb-1">
                                     <div>
-                                        <div class="message-subject">Retardo en la entrada del 15 de mayo</div>
-                                        <div class="message-sender">De: Administración</div>
+                                        <div class="message-subject"></div>
+                                        <div class="message-sender"></div>
                                     </div>
-                                    <div class="message-time">Hoy, 10:30 AM</div>
+                                    <div class="message-time"></div>
                                 </div>
                                 <div class="message-preview">
-                                    Se ha registrado un retardo de 25 minutos en tu entrada del día de hoy. Por favor justifica este retardo con tu supervisor.
                                 </div>
                             </div>
                             
-                            <!-- Mensaje 2 -->
-                            <div class="message-card p-3 border-bottom" data-bs-toggle="modal" data-bs-target="#messageModal" data-message-id="2">
-                                <div class="d-flex justify-content-between align-items-start mb-1">
-                                    <div>
-                                        <div class="message-subject">Recordatorio: Reunión de equipo</div>
-                                        <div class="message-sender">De: Recursos Humanos</div>
-                                    </div>
-                                    <div class="message-time">Ayer, 3:45 PM</div>
-                                </div>
-                                <div class="message-preview">
-                                    Este viernes 17 de mayo tendremos reunión de equipo a las 10:00 AM en la sala de juntas. Por favor confirma tu asistencia.
-                                </div>
-                            </div>
-                            
-                            <!-- Mensaje 3 -->
-                            <div class="message-card p-3 border-bottom" data-bs-toggle="modal" data-bs-target="#messageModal" data-message-id="3">
-                                <div class="d-flex justify-content-between align-items-start mb-1">
-                                    <div>
-                                        <div class="message-subject">Felicitaciones por tu desempeño</div>
-                                        <div class="message-sender">De: Gerencia</div>
-                                    </div>
-                                    <div class="message-time">12 mayo, 9:15 AM</div>
-                                </div>
-                                <div class="message-preview">
-                                    Queremos reconocer tu excelente desempeño durante el último trimestre. ¡Sigue así!
-                                </div>
-                            </div>
                             
                             <!-- Sin mensajes (ejemplo) -->
                             <!-- <div class="empty-messages p-5 text-center">
@@ -194,28 +166,23 @@
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="messageModalLabel">Retardo en la entrada del 15 de mayo</h5>
+                    <h5 class="modal-title" id="messageModalLabel">--</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <div class="d-flex justify-content-between mb-4">
                         <div>
-                            <strong>De:</strong> Administración<br>
-                            <strong>Para:</strong> Tú<br>
-                            <strong>Fecha:</strong> 15 mayo 2025, 10:30 AM
+                            <strong>De:</strong> --<br>
+                            <strong></strong><br>
+                            <strong>Fecha:</strong> --
                         </div>
                     </div>
                     
                     <div class="mb-4">
-                        <p>Estimado empleado,</p>
-                        <p>Se ha registrado un retardo de 25 minutos en tu entrada del día de hoy. Según nuestros registros, tu hora de entrada programada es a las 8:00 AM y marcaste entrada a las 8:25 AM.</p>
-                        <p>De acuerdo con el reglamento interno de la empresa, los retardos deben ser justificados ante tu supervisor inmediato dentro de las siguientes 24 horas.</p>
-                        <p>Por favor acude con tu supervisor para justificar este retardo. Si consideras que hubo un error en el registro, también puedes reportarlo.</p>
-                        <p>Atentamente,<br>Departamento de Recursos Humanos</p>
                     </div>
                     
                     <div class="alert alert-light border">
-                        <small class="text-muted">Este es un mensaje oficial del sistema de gestión de asistencias. Por favor no respondas directamente a este mensaje.</small>
+                        <small class="text-muted">Este es un mensaje oficial del sistema de gestión de asistencias.</small>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -227,6 +194,7 @@
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
 	<script src="../script/jquery-3.7.1.min.js"></script>
 	<script src="../script/bootstrap.bundle.min.js"></script>
 	<script src="../script/global.js"></script>

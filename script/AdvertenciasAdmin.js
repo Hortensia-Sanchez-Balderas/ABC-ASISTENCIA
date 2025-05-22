@@ -1,4 +1,6 @@
-document.addEventListener('DOMContentLoaded', function() {
+const apiPath = 'https://abcd-asistencia.onrender.com';
+
+document.addEventListener('DOMContentLoaded', async function() {
     // Inicializar el editor Quill
     const quill = new Quill('#editor', {
         theme: 'snow',
@@ -36,6 +38,8 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     const usuariosSimulados = generarUsuariosSimulados(1000);
+    const empleadosAPI = await obtenerEmpleados();
+    console.log({ empleadosAPI })
 
     // Inicializar Select2 con datos simulados
     $('.select2-usuario').select2({
@@ -47,20 +51,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(function() {
                     const term = params.data.q.toLowerCase();
                     
-                    // Filtrar usuarios simulados
-                    const resultados = usuariosSimulados.filter(user => 
-                        user.nombre.toLowerCase().includes(term) || 
-                        user.id.toString().includes(term) ||
-                        user.departamento.toLowerCase().includes(term)
+                    // Filtrar empleados de la API
+                    const resultados = empleadosAPI.filter(empleado => 
+                        empleado.nombre.toLowerCase().includes(term) || 
+                        empleado.id_empleado.toString().includes(term) ||
+                        empleado.Departamento.nombre.toLowerCase().includes(term)
                     ).slice(0, 10);
                     
                     // Formatear respuesta
                     success({
-                        results: resultados.map(user => ({
-                            id: user.id,
-                            text: `${user.nombre} (ID: ${user.id})`,
-                            nombre: user.nombre,
-                            depto: user.departamento
+                        results: resultados.map(empleado => ({
+                            id: empleado.id_empleado,
+                            text: `${empleado.nombre} (ID: ${empleado.id_empleado})`,
+                            nombre: empleado.nombre,
+                            depto: empleado.Departamento.nombre,
+                            rol: empleado.Rol.nombre
                         })),
                         pagination: {
                             more: false
@@ -69,24 +74,24 @@ document.addEventListener('DOMContentLoaded', function() {
                 }, 300);
             }
         },
-        templateResult: function(user) {
-            if (user.loading) return "Buscando...";
+        templateResult: function(empleado) {
+            if (empleado.loading) return "Buscando...";
             
             return $(
                 `<div class="select2-result-usuario">
-                    <div class="fw-bold">${user.nombre}</div>
-                    <small class="text-muted">ID: ${user.id} | Depto: ${user.depto}</small>
+                    <div class="fw-bold">${empleado.nombre}</div>
+                    <small class="text-muted">ID: ${empleado.id} | Depto: ${empleado.depto}</small>
                 </div>`
             );
         },
-        templateSelection: function(user) {
-            if (!user.id) return user.text;
-            return `${user.nombre} (ID: ${user.id})`;
+        templateSelection: function(empleado) {
+            if (!empleado.id) return empleado.text;
+            return `${empleado.nombre} (ID: ${empleado.id})`;
         }
     });
 
     // Manejar el envío del formulario
-    $('#advertenciaForm').on('submit', function(e) {
+    $('#advertenciaForm').on('submit', async function(e) {
         e.preventDefault();
         
         const usuarioId = $('#selectUsuario').val();
@@ -99,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Obtener datos del usuario seleccionado
-        const usuarioSeleccionado = usuariosSimulados.find(u => u.id == usuarioId);
+        const usuarioSeleccionado = empleadosAPI.find(u => u.id_empleado == usuarioId);
         
         // Simular envío a la API
         console.log('Advertencia a enviar:', {
@@ -111,8 +116,20 @@ document.addEventListener('DOMContentLoaded', function() {
             fecha: new Date().toISOString(),
             leido: false
         });
+
+        try {
+            const response = await mandarAdvertencia(usuarioId, asunto, mensaje);
+            console.log('Respuesta de la API:', response);
+
+            mostrarAlerta('Advertencia generada correctamente', 'success');
+        } catch (error) {
+            console.error('Error al enviar advertencia:', error);
+            mostrarAlerta('Error al enviar la advertencia. Intente nuevamente.', 'error');
+            return;
+        }
+
+
         
-        mostrarAlerta('Advertencia generada correctamente', 'success');
         
         // Limpiar formulario
         $('#selectUsuario').val(null).trigger('change');
@@ -144,3 +161,44 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 5000);
     }
 });
+
+const obtenerEmpleados = async () => {
+    try {
+        const response = await fetch(`${apiPath}/empleados`);
+
+        return await response.json();
+    } catch(error) {
+        console.error('Error al obtener empleados:', error);
+        return [];
+    }
+}
+
+const mandarAdvertencia = async (usuarioId, asunto, mensaje) => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        console.error('Token no encontrado');
+        return;
+    }
+
+    // Decodear token usando jsonwebtoken
+    const decodedToken = jwt_decode(token);
+    if (!decodedToken) {
+        console.error('Token inválido');
+        return;
+    }
+
+    const usuarioRemitente = decodedToken.id_empleado;
+
+    try {
+        const response = await fetch(`${apiPath}/advertencias/crearAdvertencia?id_empleado_destinatario=${usuarioId}&id_empleado_remitente=${usuarioRemitente}&asunto=${asunto}&mensaje=${mensaje}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        });
+
+        return await response.json();
+    } catch(error) {
+        console.error('Error al enviar advertencia:', error);
+    }
+}
