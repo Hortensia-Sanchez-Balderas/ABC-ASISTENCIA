@@ -10,6 +10,9 @@ let horariosTemporales = [];
 let departamentosDisponibles = [];
 let diasSemana = [];
 
+const apiPath = "https://abcd-asistencia.onrender.com"; // URL de la API para iniciar sesión
+
+
 // Datos simulados para desarrollo
 const datosSimulados = {
   usuarios: [
@@ -60,49 +63,50 @@ const datosSimulados = {
 };
 
 // Simulación de ENDPOINT: Obtener lista completa de usuarios (GET)
-function cargarUsuarios() {
+async function cargarUsuarios() {
+  const empleados = await obtenerUsuarios();
+
   // Simulamos un retraso de red
-  setTimeout(() => {
-    usuariosCompletos = datosSimulados.usuarios.map(usuario => ({
-      idUsuario: usuario.id_empleado,
-      nombre: usuario.nombre,
-      departamento: usuario.nombre_departamento || 'Sin departamento',
-      horaEntrada: usuario.hora_entrada_estandar || '--:--',
-      horaSalida: usuario.hora_salida_estandar || '--:--',
-      contrasena: '••••••••',
-      idDepartamento: usuario.id_departamento,
-      idRol: usuario.id_rol,
-      horarios: usuario.horarios || []
-    }));
-    
-    usuariosFiltrados = [...usuariosCompletos];
-    actualizarTablaUsuarios();
-    actualizarPaginacionUsuarios();
-  }, 500);
+  usuariosCompletos = empleados.map(usuario => ({
+    idUsuario: usuario.id_empleado,
+    nombre: usuario.nombre,
+    departamento: usuario?.Departamento?.nombre || 'Sin departamento',
+    contrasena: '••••••••',
+    idDepartamento: usuario.id_departamento,
+    idRol: usuario.id_rol,
+    horarios: usuario.Horario || []
+  }));
+  
+  usuariosFiltrados = [...usuariosCompletos];
+  actualizarTablaUsuarios();
+  actualizarPaginacionUsuarios();
 }
 
 // Simulación de ENDPOINT: Obtener departamentos para select (GET)
-function cargarDepartamentos() {
+async function cargarDepartamentos() {
+  const departamentos = await obtenerDepartamentos() 
+
   // Simulamos un retraso de red
-  setTimeout(() => {
-    departamentosDisponibles = datosSimulados.departamentos;
-    
-    // Llenar select en modal agregar
-    const selectAgregar = document.getElementById('departamentoUsuario');
-    selectAgregar.innerHTML = '<option value="" selected disabled>Seleccione un departamento</option>';
-    
-    // Llenar select en modal editar
-    const selectEditar = document.getElementById('editarDepartamentoUsuario');
-    selectEditar.innerHTML = '<option value="" selected disabled>Seleccione un departamento</option>';
-    
-    departamentosDisponibles.forEach(depto => {
-      const option = document.createElement('option');
-      option.value = depto.id_departamento;
-      option.textContent = depto.nombre;
-      selectAgregar.appendChild(option.cloneNode(true));
-      selectEditar.appendChild(option);
-    });
-  }, 300);
+  departamentosDisponibles = departamentos.map(departamento => ({
+    id_departamento: departamento.id_departamento,
+    nombre: departamento.nombre
+  }));
+  
+  // Llenar select en modal agregar
+  const selectAgregar = document.getElementById('departamentoUsuario');
+  selectAgregar.innerHTML = '<option value="" selected disabled>Seleccione un departamento</option>';
+  
+  // Llenar select en modal editar
+  const selectEditar = document.getElementById('editarDepartamentoUsuario');
+  selectEditar.innerHTML = '<option value="" selected disabled>Seleccione un departamento</option>';
+  
+  departamentosDisponibles.forEach(depto => {
+    const option = document.createElement('option');
+    option.value = depto.id_departamento;
+    option.textContent = depto.nombre;
+    selectAgregar.appendChild(option.cloneNode(true));
+    selectEditar.appendChild(option);
+  });
 }
 
 // Simulación de ENDPOINT: Obtener días de la semana (GET)
@@ -179,17 +183,16 @@ function actualizarTablaUsuarios() {
     tbody.innerHTML = '<tr><td colspan="8" class="text-center py-4">No se encontraron resultados</td></tr>';
     return;
   }
+
   
   usuariosPaginados.forEach(usuario => {
-    const rolTexto = usuario.idRol === 1 ? 'Administrador' : 'Empleado'; // Determinar texto del rol
+    const rolTexto = usuario.idRol === 3 ? 'Administrador' : 'Empleado'; // Determinar texto del rol
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${usuario.idUsuario}</td>
       <td>${usuario.nombre}</td>
       <td>${usuario.departamento}</td>
       <td>${rolTexto}</td> <!-- Mostrar el tipo de usuario -->
-      <td>${(usuario.horaEntrada)}</td>
-      <td>${(usuario.horaSalida)}</td>
       <td>${usuario.contrasena}</td>
       <td>
         <button class="btn btn-sm btn-outline-primary btn-editar" data-id="${usuario.idUsuario}">
@@ -208,19 +211,22 @@ function actualizarTablaUsuarios() {
 
 
 // Simulación de ENDPOINT: Eliminar usuario (DELETE)
-function manejarEliminarUsuario(idUsuario) {
+async function manejarEliminarUsuario(idUsuario) {
   if (!confirm(`¿Estás seguro de eliminar al usuario con ID: ${idUsuario}?`)) return;
 
-  // Simulamos un retraso de red
-  setTimeout(() => {
-    mostrarExito('Usuario eliminado correctamente (simulado)');
-    // En un entorno real, aquí haríamos la llamada al endpoint
-    // y solo actualizaríamos si la respuesta es exitosa
-    usuariosCompletos = usuariosCompletos.filter(u => u.idUsuario != idUsuario);
-    usuariosFiltrados = usuariosFiltrados.filter(u => u.idUsuario != idUsuario);
+  try {
+    await eliminarEmpleado(idUsuario);
+    mostrarExito('Usuario eliminado correctamente');
+
+    // Recargar la lista de usuarios
+    await cargarUsuarios();
     actualizarTablaUsuarios();
     actualizarPaginacionUsuarios();
-  }, 500);
+  } catch (error) {
+    console.error('Error al eliminar el empleado:', error);
+    mostrarError('Error al eliminar el empleado');
+    return;
+  }
 }
 // -------------------------------------------------------Función para mostrar el modal de agregar usuario
 // Función para mostrar el modal de agregar usuario
@@ -235,7 +241,7 @@ function mostrarModalAgregarUsuario() {
 }
 
 // Simulación de ENDPOINT: Crear nuevo usuario (POST)
-function guardarUsuario() {
+async function guardarUsuario() {
   const idUsuario = document.getElementById('idUsuario').value;
   const nombreUsuario = document.getElementById('nombreUsuario').value;
   const departamentoUsuario = document.getElementById('departamentoUsuario').value;
@@ -247,41 +253,44 @@ function guardarUsuario() {
     return;
   }
   
-  // Simulamos un retraso de red
-  setTimeout(() => {
-    // Generar un nuevo ID (simulado)
-    const nuevoId = Math.max(...usuariosCompletos.map(u => u.idUsuario), 0) + 1;
-    
-    // Crear el nuevo usuario simulado
-    const nuevoUsuario = {
-      idUsuario: nuevoId,
-      nombre: nombreUsuario,
-      departamento: departamentosDisponibles.find(d => d.id_departamento == departamentoUsuario)?.nombre || 'Sin departamento',
-      horaEntrada: '--:--',
-      horaSalida: '--:--',
-      contrasena: '••••••••',
-      idDepartamento: departamentoUsuario,
-      idRol: rolUsuario,
-      horarios: horariosTemporales.map(h => ({
-        idDia: h.idDia,
-        nombreDia: diasSemana.find(d => d.id_dia == h.idDia)?.nombre || 'Día',
-        horaEntrada: h.horaEntrada,
-        horaSalida: h.horaSalida,
-        laborable: h.laborable
-      }))
-    };
-    
-    // Agregar a la lista (simulación)
-    usuariosCompletos.unshift(nuevoUsuario);
-    usuariosFiltrados.unshift(nuevoUsuario);
-    
-    mostrarExito('Usuario creado correctamente (simulado)');
+  // Crear el nuevo usuario simulado
+  const nuevoUsuario = {
+    nombre: nombreUsuario,
+    departamento: departamentosDisponibles.find(d => d.id_departamento == departamentoUsuario)?.nombre || 'Sin departamento',
+    horaEntrada: '--:--',
+    horaSalida: '--:--',
+    contrasena: contrasenaUsuario,
+    idDepartamento: departamentoUsuario,
+    idRol: rolUsuario,
+    horarios: horariosTemporales.map(h => ({
+      idDia: h.idDia,
+      nombreDia: diasSemana.find(d => d.id_dia == h.idDia)?.nombre || 'Día',
+      horaEntrada: h.horaEntrada,
+      horaSalida: h.horaSalida,
+      laborable: h.laborable
+    }))
+  };
+
+  try {
+    await crearEmpleado(nuevoUsuario)
+    await cargarUsuarios(); // Recargar la lista de usuarios
+
+    mostrarExito('Usuario creado correctamente');
     actualizarTablaUsuarios();
     actualizarPaginacionUsuarios();
-    
-    const modal = bootstrap.Modal.getInstance(document.getElementById('modalAgregarUsuario'));
-    modal.hide();
-  }, 800);
+  } catch (error) {
+    console.error('Error al crear el empleado:', error);
+    mostrarError('Error al crear el empleado');
+    return;
+  }
+  
+  // Agregar a la lista (simulación)
+  // usuariosCompletos.unshift(nuevoUsuario);
+  // usuariosFiltrados.unshift(nuevoUsuario);
+  
+  
+  const modal = bootstrap.Modal.getInstance(document.getElementById('modalAgregarUsuario'));
+  modal.hide();
 }
 
 
@@ -332,41 +341,51 @@ function mostrarModalEditarUsuario(usuario) {
 }
 
 // Simulación de ENDPOINT: Actualizar usuario (PUT)
-function guardarEdicionUsuario() {
+async function guardarEdicionUsuario() {
     const idUsuario = document.getElementById('editarIdUsuario').value;
     const nombreUsuario = document.getElementById('editarNombreUsuario').value;
     const departamentoUsuario = document.getElementById('editarDepartamentoUsuario').value;
+    const contrasenaUsuario = document.getElementById('editarContrasenaUsuario').value;
     const rolUsuario = document.getElementById('editarRolUsuario').value;
-    
-    if (!nombreUsuario || !departamentoUsuario || !rolUsuario) {
+
+    if (!nombreUsuario || !departamentoUsuario || !contrasenaUsuario || !rolUsuario) {
         mostrarError('Por favor complete todos los campos obligatorios');
         return;
     }
 
-    // Actualizar el usuario en los arrays
-    const usuarioIndex = usuariosCompletos.findIndex(u => u.idUsuario == idUsuario);
-    if (usuarioIndex !== -1) {
-        usuariosCompletos[usuarioIndex].nombre = nombreUsuario;
-        usuariosCompletos[usuarioIndex].idDepartamento = departamentoUsuario;
-        usuariosCompletos[usuarioIndex].idRol = rolUsuario;
-        usuariosCompletos[usuarioIndex].departamento = 
-            departamentosDisponibles.find(d => d.id_departamento == departamentoUsuario)?.nombre || 'Sin departamento';
-        usuariosCompletos[usuarioIndex].horarios = [...horariosTemporales];
-        
-        // Actualizar también en usuariosFiltrados si existe
-        const filtradoIndex = usuariosFiltrados.findIndex(u => u.idUsuario == idUsuario);
-        if (filtradoIndex !== -1) {
-            usuariosFiltrados[filtradoIndex] = {...usuariosCompletos[usuarioIndex]};
-        }
-        
+    // Crear el nuevo usuario simulado
+    const nuevoUsuario = {
+        idUsuario: idUsuario,
+        nombre: nombreUsuario,
+        departamento: departamentosDisponibles.find(d => d.id_departamento == departamentoUsuario)?.nombre || 'Sin departamento',
+        contrasena: contrasenaUsuario,
+        idDepartamento: departamentoUsuario,
+        idRol: rolUsuario,
+        horarios: horariosTemporales.map(h => ({
+            idDia: h.idDia,
+            nombreDia: diasSemana.find(d => d.id_dia == h.idDia)?.nombre || 'Día',
+            horaEntrada: h.horaEntrada,
+            horaSalida: h.horaSalida,
+            laborable: h.laborable
+        }))
+    };
+
+    try {
+        await updateEmpleado(idUsuario, nuevoUsuario);
+        await cargarUsuarios(); // Recargar la lista de usuarios
+
         mostrarExito('Usuario actualizado correctamente');
         actualizarTablaUsuarios();
-        
-        const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarUsuario'));
-        modal.hide();
-    } else {
-        mostrarError('No se encontró el usuario para actualizar');
+        actualizarPaginacionUsuarios();
+    } catch (error) {
+        console.error('Error al actualizar el empleado:', error);
+        mostrarError('Error al actualizar el empleado');
+        return;
     }
+
+    // Cerrar modal
+    const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarUsuario'));
+    modal.hide();
 }
 
 // Función para manejar la edición de usuario
@@ -500,10 +519,21 @@ function mostrarError(mensaje) {
 }
 
 
+// CAMBIO: Función para cambiar de página (nueva función)
+function cambiarPaginaUsuarios(nuevaPagina) {
+    paginaActual = nuevaPagina;
+    actualizarTablaUsuarios();
+    actualizarPaginacionUsuarios();
+    
+    // Desplazarse suavemente al inicio de la tabla
+    document.querySelector('#tablaUsuarios').scrollIntoView({ behavior: 'smooth' });
+}
+
 function actualizarPaginacionUsuarios() {
     const totalPaginas = Math.ceil(usuariosFiltrados.length / filasPorPagina);
     const paginacion = document.querySelector('.pagination');
     paginacion.innerHTML = '';
+    
     
     // Botón Anterior
     paginacion.innerHTML += `
@@ -539,9 +569,9 @@ function actualizarPaginacionUsuarios() {
 }
 
 // Event listeners
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', async function() {
     // Inicializar datos
-    cargarUsuarios();
+    await cargarUsuarios();
     cargarDepartamentos();
     cargarDiasSemana();
     
@@ -582,14 +612,15 @@ if (btnBuscar && btnLimpiar && buscarInput) {
     // Delegación de eventos
     document.querySelector('.pagination').addEventListener('click', function(e) {
         e.preventDefault();
-        if (e.target.closest('#paginaAnterior')) {
-            if (paginaActual > 1) cambiarPaginaUsuarios(paginaActual - 1);
-        } else if (e.target.closest('#paginaSiguiente')) {
-            if (paginaActual < Math.ceil(usuariosFiltrados.length / filasPorPagina)) {
-                cambiarPaginaUsuarios(paginaActual + 1);
-            }
-        } else if (e.target.hasAttribute('data-pagina')) {
-            cambiarPaginaUsuarios(parseInt(e.target.getAttribute('data-pagina')));
+        const target = e.target.closest('a');
+        if (!target) return;
+        
+        if (target.id === 'paginaAnterior' && paginaActual > 1) {
+            cambiarPaginaUsuarios(paginaActual - 1);
+        } else if (target.id === 'paginaSiguiente' && paginaActual < Math.ceil(usuariosFiltrados.length / filasPorPagina)) {
+            cambiarPaginaUsuarios(paginaActual + 1);
+        } else if (target.hasAttribute('data-pagina')) {
+            cambiarPaginaUsuarios(parseInt(target.getAttribute('data-pagina')));
         }
     });
     
@@ -623,8 +654,8 @@ if (btnBuscar && btnLimpiar && buscarInput) {
     
     // Eventos para modal de agregar
    // En tu DOMContentLoaded:
-document.getElementById('btnAgregarHorarioEdicion').addEventListener('click', function() {
-    agregarHorarioTemporal('diaHorarioEdicion', 'horaEntradaEdicion', 'horaSalidaEdicion', 'tablaHorariosEdicion');
+document.getElementById('btnAgregarHorario').addEventListener('click', function() {
+    agregarHorarioTemporal('diaHorario', 'horaEntrada', 'horaSalida', 'tablaHorarios');
 });
 
 document.getElementById('tablaHorariosEdicion').addEventListener('click', function(e) {
@@ -634,7 +665,7 @@ document.getElementById('tablaHorariosEdicion').addEventListener('click', functi
     }
 });
 
-document.getElementById('btnGuardarEdicion').addEventListener('click', guardarEdicionUsuario);
+// document.getElementById('btnGuardarEdicion').addEventListener('click', guardarEdicionUsuario);
     document.getElementById('btnAgregarUsuario').addEventListener('click', mostrarModalAgregarUsuario);
     
     // Eventos para modal de edición
@@ -650,5 +681,170 @@ document.getElementById('btnGuardarEdicion').addEventListener('click', guardarEd
     });
     
     document.getElementById('btnGuardarEdicion').addEventListener('click', guardarEdicionUsuario);
+
+    document.getElementById('btnGuardarUsuario').addEventListener('click', guardarUsuario);
 });
 
+const obtenerUsuarios = async () => {
+  try {
+    const response = await fetch(`${apiPath}/empleados`);
+    if (!response.ok) {
+      throw new Error('Error al obtener los empleados');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+const obtenerDepartamentos = async () => {
+  try {
+    const response = await fetch(`${apiPath}/departamentos`);
+    if (!response.ok) {
+      throw new Error('Error al obtener los departamentos');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+const obtenerRoles = async () => {
+  try {
+    const response = await fetch(`${apiPath}/roles`);
+    if (!response.ok) {
+      throw new Error('Error al obtener los roles');
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
+
+const crearEmpleado = async (nuevoUsuario) => {
+  // Mapeo de los días en el frontend a los días esperados en el backend
+    const dias = {
+        1: "lunes",
+        2: "martes",
+        3: "miercoles",
+        4: "jueves",
+        5: "viernes",
+        6: "sabado",
+        7: "domingo"
+    };
+
+    // Convertir el objeto nuevoUsuario a la estructura del backend
+    const requestPayload = {
+        nombre: nuevoUsuario.nombre,
+        idDepartamento: parseInt(nuevoUsuario.idDepartamento),  // Asegurarse que el id sea un número
+        contrasena: nuevoUsuario.contrasena,
+        idRol: parseInt(nuevoUsuario.idRol),  // Asegurarse que el idRol sea un número
+        diasLaborales: {}
+    };
+
+    // Inicializamos los días con valores por defecto (laborables de 8am a 5pm)
+    Object.keys(dias).forEach(dia => {
+        requestPayload.diasLaborales[dias[dia]] = {
+            laborable: false,
+            hora_entrada: "",
+            hora_salida: ""
+        };
+    });
+
+    // Mapeamos los horarios que vienen en 'horarios' al formato esperado
+    nuevoUsuario.horarios.forEach(horario => {
+        const dia = dias[parseInt(horario.idDia)];
+        if (dia) {
+            requestPayload.diasLaborales[dia] = {
+                laborable: horario.laborable,
+                hora_entrada: horario.horaEntrada,
+                hora_salida: horario.horaSalida
+            };
+        }
+    });
+
+    const response = await fetch(`${apiPath}/empleados/createEmpleado`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestPayload)
+    });
+
+    return response.json();
+}
+
+const updateEmpleado = async (id, nuevoUsuario) => {
+  // Mapeo de los días en el frontend a los días esperados en el backend
+    const dias = {
+        1: "lunes",
+        2: "martes",
+        3: "miercoles",
+        4: "jueves",
+        5: "viernes",
+        6: "sabado",
+        7: "domingo"
+    };
+
+    // Convertir el objeto nuevoUsuario a la estructura del backend
+    const requestPayload = {
+        idEmpleado: parseInt(id),
+        nombre: nuevoUsuario.nombre,
+        idDepartamento: parseInt(nuevoUsuario.idDepartamento),  // Asegurarse que el id sea un número
+        contrasena: nuevoUsuario.contrasena,
+        idRol: parseInt(nuevoUsuario.idRol),  // Asegurarse que el idRol sea un número
+        diasLaborales: {}
+    };
+
+    // Inicializamos los días con valores por defecto (laborables de 8am a 5pm)
+    Object.keys(dias).forEach(dia => {
+        requestPayload.diasLaborales[dias[dia]] = {
+            laborable: false,
+            hora_entrada: "",
+            hora_salida: ""
+        };
+    });
+
+    // Mapeamos los horarios que vienen en 'horarios' al formato esperado
+    nuevoUsuario.horarios.forEach(horario => {
+        const dia = dias[parseInt(horario.idDia)];
+        if (dia) {
+            requestPayload.diasLaborales[dia] = {
+                laborable: horario.laborable,
+                hora_entrada: horario.horaEntrada,
+                hora_salida: horario.horaSalida
+            };
+        }
+    });
+
+    const response = await fetch(`${apiPath}/empleados/updateEmpleado`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(requestPayload)
+    });
+
+    return response.json();
+}
+
+const eliminarEmpleado = async (id) => {
+  try {
+    const response = await fetch(`${apiPath}/empleados/deleteEmpleado`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ idEmpleado: +id })
+    });
+    if (!response.ok) {
+      throw new Error('Error al eliminar el empleado');
+    }
+    return await response.json();
+  } catch (error) {
+    console.error('Error:', error);
+  }
+}
