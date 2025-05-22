@@ -519,10 +519,21 @@ function mostrarError(mensaje) {
 }
 
 
+// CAMBIO: Función para cambiar de página (nueva función)
+function cambiarPaginaUsuarios(nuevaPagina) {
+    paginaActual = nuevaPagina;
+    actualizarTablaUsuarios();
+    actualizarPaginacionUsuarios();
+    
+    // Desplazarse suavemente al inicio de la tabla
+    document.querySelector('#tablaUsuarios').scrollIntoView({ behavior: 'smooth' });
+}
+
 function actualizarPaginacionUsuarios() {
     const totalPaginas = Math.ceil(usuariosFiltrados.length / filasPorPagina);
     const paginacion = document.querySelector('.pagination');
     paginacion.innerHTML = '';
+    
     
     // Botón Anterior
     paginacion.innerHTML += `
@@ -601,14 +612,15 @@ if (btnBuscar && btnLimpiar && buscarInput) {
     // Delegación de eventos
     document.querySelector('.pagination').addEventListener('click', function(e) {
         e.preventDefault();
-        if (e.target.closest('#paginaAnterior')) {
-            if (paginaActual > 1) cambiarPaginaUsuarios(paginaActual - 1);
-        } else if (e.target.closest('#paginaSiguiente')) {
-            if (paginaActual < Math.ceil(usuariosFiltrados.length / filasPorPagina)) {
-                cambiarPaginaUsuarios(paginaActual + 1);
-            }
-        } else if (e.target.hasAttribute('data-pagina')) {
-            cambiarPaginaUsuarios(parseInt(e.target.getAttribute('data-pagina')));
+        const target = e.target.closest('a');
+        if (!target) return;
+        
+        if (target.id === 'paginaAnterior' && paginaActual > 1) {
+            cambiarPaginaUsuarios(paginaActual - 1);
+        } else if (target.id === 'paginaSiguiente' && paginaActual < Math.ceil(usuariosFiltrados.length / filasPorPagina)) {
+            cambiarPaginaUsuarios(paginaActual + 1);
+        } else if (target.hasAttribute('data-pagina')) {
+            cambiarPaginaUsuarios(parseInt(target.getAttribute('data-pagina')));
         }
     });
     
