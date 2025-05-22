@@ -1,3 +1,4 @@
+const apiPath = 'https://abcd-asistencia.onrender.com';
 // advertencias.js - Script para manejar la lógica de la pantalla de advertencias
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -25,49 +26,69 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Cargar mensajes (simulación - reemplazar con llamada AJAX real)
-    function loadMessages() {
-        // Simulación de carga desde API
-        console.log('Cargando mensajes...');
+    async function loadMessages() {
         
-        // Esto sería reemplazado por una llamada AJAX real a tu backend
-        // fetch('/api/advertencias')
-        //     .then(response => response.json())
-        //     .then(data => {
-        //         messages = data;
-        //         applyFilters();
-        //     })
-        //     .catch(error => console.error('Error cargando mensajes:', error));
+        const advertenciasAPI = await obtenerMensajes();
 
-        // Datos de ejemplo (simulados)
-        messages = [
-            {
-                id: 1,
-                subject: 'Retardo en la entrada del 15 de mayo',
-                sender: 'Administración',
-                preview: 'Se ha registrado un retardo de 25 minutos en tu entrada del día de hoy. Por favor justifica este retardo con tu supervisor.',
-                content: 'Estimado empleado,\n\nSe ha registrado un retardo de 25 minutos en tu entrada del día de hoy. Según nuestros registros, tu hora de entrada programada es a las 8:00 AM y marcaste entrada a las 8:25 AM.\n\nDe acuerdo con el reglamento interno de la empresa, los retardos deben ser justificados ante tu supervisor inmediato dentro de las siguientes 24 horas.\n\nPor favor acude con tu supervisor para justificar este retardo. Si consideras que hubo un error en el registro, también puedes reportarlo.\n\nAtentamente,\nDepartamento de Recursos Humanos',
-                date: new Date(),
-                read: false
-            },
-            {
-                id: 2,
-                subject: 'Recordatorio: Reunión de equipo',
-                sender: 'Recursos Humanos',
-                preview: 'Este viernes 17 de mayo tendremos reunión de equipo a las 10:00 AM en la sala de juntas. Por favor confirma tu asistencia.',
-                content: 'Hola equipo,\n\nEste viernes 17 de mayo a las 10:00 AM tendremos nuestra reunión mensual de equipo en la sala de juntas principal.\n\nTemas a tratar:\n- Revisión de métricas del mes\n- Nuevos proyectos\n- Retroalimentación general\n\nPor favor confirma tu asistencia respondiendo a este mensaje.\n\nSaludos,\nEquipo de Recursos Humanos',
-                date: new Date(Date.now() - 86400000), // Ayer
-                read: true
-            },
-            {
-                id: 3,
-                subject: 'Felicitaciones por tu desempeño',
-                sender: 'Gerencia',
-                preview: 'Queremos reconocer tu excelente desempeño durante el último trimestre. ¡Sigue así!',
-                content: 'Estimado empleado,\n\nNos complace informarte que tu desempeño durante el último trimestre ha sido excepcional. Tu compromiso y resultados han superado nuestras expectativas.\n\nQueremos reconocer tu esfuerzo y dedicación, que son un ejemplo para todo el equipo. ¡Sigue con el excelente trabajo!\n\nAtentamente,\nGerencia General',
-                date: new Date(Date.now() - 3 * 86400000), // Hace 3 días
-                read: true
-            }
-        ];
+        if (!advertenciasAPI || advertenciasAPI.length === 0) {
+            messagesContainer.innerHTML = `
+                <div class="empty-messages p-5 text-center">
+                    <i class="bi bi-envelope-open"></i>
+                    <h5 class="mb-1">No hay advertencias</h5>
+                    <p class="mb-0">No tienes ninguna advertencia o mensaje pendiente.</p>
+                </div>
+            `;
+            return;
+        }
+
+        const empleados = await obtenerEmpleados();
+        
+        advertenciasAPI.forEach(advertencia => {
+            const fecha = new Date(advertencia.fecha);
+            fecha.setHours(fecha.getHours() + 6);
+
+            const empleadoSender = empleados.find(empleado => empleado.id_empleado === advertencia.id_empleado_remitente);
+            messages.push({
+                id: advertencia.id_advertencia,
+                subject: advertencia.asunto,
+                sender: empleadoSender?.nombre ?? '--',
+                preview: advertencia.mensaje,
+                content: advertencia.mensaje,
+                date: fecha,
+                read: advertencia.leido
+            });
+        })
+
+
+        // messages = [
+        //     {
+        //         id: advertenciasAPI.id_advertencia,
+        //         subject: 'Retardo en la entrada del 15 de mayo',
+        //         sender: 'Administración',
+        //         preview: 'Se ha registrado un retardo de 25 minutos en tu entrada del día de hoy. Por favor justifica este retardo con tu supervisor.',
+        //         content: 'Estimado empleado,\n\nSe ha registrado un retardo de 25 minutos en tu entrada del día de hoy. Según nuestros registros, tu hora de entrada programada es a las 8:00 AM y marcaste entrada a las 8:25 AM.\n\nDe acuerdo con el reglamento interno de la empresa, los retardos deben ser justificados ante tu supervisor inmediato dentro de las siguientes 24 horas.\n\nPor favor acude con tu supervisor para justificar este retardo. Si consideras que hubo un error en el registro, también puedes reportarlo.\n\nAtentamente,\nDepartamento de Recursos Humanos',
+        //         date: new Date(),
+        //         read: false
+        //     },
+        //     {
+        //         id: 2,
+        //         subject: 'Recordatorio: Reunión de equipo',
+        //         sender: 'Recursos Humanos',
+        //         preview: 'Este viernes 17 de mayo tendremos reunión de equipo a las 10:00 AM en la sala de juntas. Por favor confirma tu asistencia.',
+        //         content: 'Hola equipo,\n\nEste viernes 17 de mayo a las 10:00 AM tendremos nuestra reunión mensual de equipo en la sala de juntas principal.\n\nTemas a tratar:\n- Revisión de métricas del mes\n- Nuevos proyectos\n- Retroalimentación general\n\nPor favor confirma tu asistencia respondiendo a este mensaje.\n\nSaludos,\nEquipo de Recursos Humanos',
+        //         date: new Date(Date.now() - 86400000), // Ayer
+        //         read: true
+        //     },
+        //     {
+        //         id: 3,
+        //         subject: 'Felicitaciones por tu desempeño',
+        //         sender: 'Gerencia',
+        //         preview: 'Queremos reconocer tu excelente desempeño durante el último trimestre. ¡Sigue así!',
+        //         content: 'Estimado empleado,\n\nNos complace informarte que tu desempeño durante el último trimestre ha sido excepcional. Tu compromiso y resultados han superado nuestras expectativas.\n\nQueremos reconocer tu esfuerzo y dedicación, que son un ejemplo para todo el equipo. ¡Sigue con el excelente trabajo!\n\nAtentamente,\nGerencia General',
+        //         date: new Date(Date.now() - 3 * 86400000), // Hace 3 días
+        //         read: true
+        //     }
+        // ];
 
         applyFilters();
     }
@@ -136,6 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (diffDays === 0) return `Hoy, ${date.toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'})}`;
         if (diffDays === 1) return `Ayer, ${date.toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'})}`;
+
         
         return date.toLocaleDateString('es-MX', { 
             day: 'numeric', 
@@ -199,8 +221,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Actualizar UI del modal
             document.getElementById('messageModalLabel').textContent = message.subject;
+            document.getElementById('messageModalLabel').style.color = '#000';
             document.querySelector('.modal-body strong:nth-of-type(1)').nextSibling.textContent = ` ${message.sender}`;
-            document.querySelector('.modal-body strong:nth-of-type(2)').nextSibling.textContent = ` Tú`;
             document.querySelector('.modal-body strong:nth-of-type(3)').nextSibling.textContent = ` ${formatDate(message.date)}`;
             document.querySelector('.modal-body div:nth-of-type(2)').innerHTML = message.content.replace(/\n/g, '<br>');
             
@@ -244,3 +266,42 @@ document.addEventListener('DOMContentLoaded', function() {
         //     .catch(error => console.error('Error:', error));
     }
 });
+
+const obtenerMensajes = async () => {
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+        console.error('Token no encontrado');
+        return;
+    }
+
+    // Decodear token usando jsonwebtoken
+    const decodedToken = jwt_decode(token);
+    if (!decodedToken) {
+        console.error('Token inválido');
+        return;
+    }
+
+    const usuarioId = decodedToken.id_empleado;
+
+    try {
+        const response = await fetch(`${apiPath}/advertencias/advertenciasByEmpleado?id_empleado_destinatario=${usuarioId}`);
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error:', error);
+        return [];
+    }
+}
+
+const obtenerEmpleados = async () => {
+    try {
+        const response = await fetch(`${apiPath}/empleados`);
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error:', error);
+        return [];
+    }
+}
