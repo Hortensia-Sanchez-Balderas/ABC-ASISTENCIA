@@ -176,43 +176,38 @@ document.addEventListener("DOMContentLoaded", function() {
 
             const data = await response.json();
             
-            // Procesar los datos de la API para que coincidan con tu estructura actual
             allData = data.map(item => ({
-                id_empleado: item.id_empleado,
-                nombre: item.nombre_empleado || `${item.nombre} ${item.apellido}`,
-                id_departamento: item.id_departamento,
-                departamento: item.nombre_departamento || 'Sin departamento',
-                id_rol: item.id_rol,
-                rol: item.nombre_rol || 'Sin rol',
-                hora_entrada: item.hora_entrada ? formatearHora24(item.hora_entrada) : '-',
-                hora_salida: item.hora_salida ? formatearHora24(item.hora_salida) : '-',
-                tiempo_comida: item.tiempo_comida_minutos || 0,
-                id_turno: item.id_turno || null,
-                id_asistencia: item.id_asistencia // Agregamos este campo para las operaciones
+                id_empleado: item.Empleado?.id_empleado ?? '',
+                nombre: item.Empleado?.nombre ?? '',
+                departamento: item.Empleado?.Departamento?.nombre ?? 'Sin departamento',
+                id_departamento: item.Empleado?.Departamento?.id_departamento ?? '',
+                rol: item.Empleado?.Rol?.nombre ?? 'Sin rol',
+                id_rol: item.Empleado?.Rol?.id_rol ?? '',
+                // Puedes adaptar estos campos según tu lógica de entrada/salida:
+                hora_entrada: item.tipo_evento === 1 ? formatearHora24(item.fecha_hora) : '-', // Ejemplo: tipo_evento 1 = entrada
+                hora_salida: item.tipo_evento === 2 ? formatearHora24(item.fecha_hora) : '-',  // Ejemplo: tipo_evento 2 = salida
+                id_evento: item.id_evento ?? null,
+                fecha_hora: item.fecha_hora ?? null,
             }));
 
             datosFiltrados = [...allData];
             
-            // Si necesitas cargar departamentos y roles por separado
             await loadDepartamentosYRoles();
             
         } catch (error) {
             console.error("Error cargando datos:", error);
             showError("Error al cargar datos desde el servidor");
-            // Opcional: cargar datos de prueba si falla la API
-            // await loadDatosSimulados();
         } finally {
             showLoading(false);
         }
     }
 
-    // Cargar departamentos y roles (si es necesario)
+    // Cargar departamentos y roles 
     async function loadDepartamentosYRoles() {
         try {
-            // Aquí deberías hacer llamadas a tus endpoints correspondientes
             const [deptResponse, rolesResponse] = await Promise.all([
-                fetch(`${API_BASE_URL}departamentos`), // Ajusta la URL
-                fetch(`${API_BASE_URL}roles`) // Ajusta la URL
+                fetch(`${API_BASE_URL}departamentos`), 
+                fetch(`${API_BASE_URL}roles`) 
             ]);
 
             const departamentos = await deptResponse.json();
@@ -235,7 +230,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // Guardar cambios desde el modal - ahora con API real
+    // Guardar cambios desde el modal
     async function guardarCambios() {
         try {
             showLoading(true, "Guardando cambios...");
@@ -286,7 +281,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     }
 
-    // Confirmar eliminación - ahora con API real
+    // Confirmar eliminación 
     async function confirmarEliminacion(idAsistencia) {
         const confirmacion = await Swal.fire({
             title: '¿Estás seguro?',
@@ -352,74 +347,6 @@ document.addEventListener("DOMContentLoaded", function() {
         modalEdicion.show();
     }
 
-        // Guardar cambios desde el modal
-    async function guardarCambios() {
-        try {
-            showLoading(true, "Guardando cambios...");
-            
-            // Validación básica
-            if (!campoHoraEntrada.value || !campoHoraSalida.value) {
-                throw new Error("Las horas de entrada y salida son obligatorias");
-            }
-
-            // Preparar datos para enviar (solo horas)
-            const datosActualizados = {
-                id_empleado: campoId.value,
-                hora_entrada: campoHoraEntrada.value,
-                hora_salida: campoHoraSalida.value
-            };
-
-            // Simular actualización en la UI
-            const index = allData.findIndex(e => e.id_empleado.toString() === campoId.value);
-            if (index !== -1) {
-                allData[index].hora_entrada = campoHoraEntrada.value;
-                allData[index].hora_salida = campoHoraSalida.value;
-                datosFiltrados = [...allData];
-                actualizarTabla();
-            }
-
-            // Cerrar modal
-            modalEdicion.hide();
-            showSuccess("Horas actualizadas correctamente");
-        } catch (error) {
-            console.error("Error guardando cambios:", error);
-            showError(error.message || "Error al guardar los cambios");
-        } finally {
-            showLoading(false);
-        }
-    }
-
-    // Confirmar eliminación
-    async function confirmarEliminacion(idTurno) {
-        const confirmacion = await Swal.fire({
-            title: '¿Estás seguro?',
-            text: "Esta acción no se puede deshacer",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#3085d6',
-            cancelButtonColor: '#d33',
-            confirmButtonText: 'Sí, eliminar',
-            cancelButtonText: 'Cancelar'
-        });
-
-        if (confirmacion.isConfirmed) {
-            try {
-                showLoading(true, "Eliminando registro...");
-                
-                // Simular eliminación en la UI
-                allData = allData.filter(item => item.id_turno !== parseInt(idTurno));
-                datosFiltrados = [...allData];
-                actualizarTabla();
-                
-                showSuccess("Registro eliminado correctamente");
-            } catch (error) {
-                console.error("Error eliminando:", error);
-                showError("Error al eliminar el registro");
-            } finally {
-                showLoading(false);
-            }
-        }
-    }
 
     function actualizarTabla() {
     const tbody = document.querySelector('#tablaAsistenciasdiario tbody');
