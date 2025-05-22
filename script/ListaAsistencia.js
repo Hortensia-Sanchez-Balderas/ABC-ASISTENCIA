@@ -230,56 +230,73 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     // Guardar cambios desde el modal
-    async function guardarCambios() {
-        try {
-            showLoading(true, "Guardando cambios...");
-            
-            // Validación básica
-            if (!campoHoraEntrada.value || !campoHoraSalida.value) {
-                throw new Error("Las horas de entrada y salida son obligatorias");
-            }
+   async function guardarCambios() {
+    try {
+        showLoading(true, "Guardando cambios...");
 
-            // Preparar datos para enviar
-            const datosActualizados = {
-                id_evento: registroEditando.id_evento,
-                hora_entrada: campoHoraEntrada.value,
-                hora_salida: campoHoraSalida.value
-            };
-
-            // Llamada a la API para actualizar
-            const response = await fetch(`${API_BASE_URL}asistencias/actualizar-asistencia`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    // 'Authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify(datosActualizados)
-            });
-
-            if (!response.ok) {
-                throw new Error(`Error al actualizar: ${response.status}`);
-            }
-
-            // Actualizar la UI con los nuevos datos
-            const index = allData.findIndex(e => e.id_empleado.toString() === campoId.value);
-            if (index !== -1) {
-                allData[index].hora_entrada = campoHoraEntrada.value;
-                allData[index].hora_salida = campoHoraSalida.value;
-                datosFiltrados = [...allData];
-                actualizarTabla();
-            }
-
-            // Cerrar modal
-            modalEdicion.hide();
-            showSuccess("Horas actualizadas correctamente");
-        } catch (error) {
-            console.error("Error guardando cambios:", error);
-            showError(error.message || "Error al guardar los cambios");
-        } finally {
-            showLoading(false);
+        if (!campoHoraEntrada.value || !campoHoraSalida.value) {
+            throw new Error("Las horas de entrada y salida son obligatorias");
         }
-    }
 
+        const fechaBase = registroEditando.fecha_hora
+            ? registroEditando.fecha_hora.split('T')[0]
+            : new Date().toISOString().split('T')[0];
+
+        // Actualizar hora de entrada
+        const datosEntrada = {
+            idEventoAsistencia: registroEditando.id_evento,
+            fechaHora: `${fechaBase}T${campoHoraEntrada.value}:00Z`
+        };
+
+        let response = await fetch(`${API_BASE_URL}asistencias/actualizar-asistencia`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(datosEntrada)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            throw new Error(errorData?.message || `Error al actualizar entrada: ${response.status}`);
+        }
+
+        // Actualizar hora de salida
+        const datosSalida = {
+            idEventoAsistencia: registroEditando.id_evento,
+            fechaHora: `${fechaBase}T${campoHoraSalida.value}:00Z`
+        };
+
+        response = await fetch(`${API_BASE_URL}asistencias/actualizar-asistencia`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(datosSalida)
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => null);
+            throw new Error(errorData?.message || `Error al actualizar salida: ${response.status}`);
+        }
+
+        const index = allData.findIndex(e => e.id_empleado.toString() === campoId.value);
+        if (index !== -1) {
+            allData[index].hora_entrada = campoHoraEntrada.value;
+            allData[index].hora_salida = campoHoraSalida.value;
+            datosFiltrados = [...allData];
+            actualizarTabla();
+        }
+
+        modalEdicion.hide();
+        showSuccess("Horas actualizadas correctamente");
+    } catch (error) {
+        console.error("Error guardando cambios:", error);
+        showError(error.message || "Error al guardar los cambios");
+    } finally {
+        showLoading(false);
+    }
+}
     // Confirmar eliminación 
     async function confirmarEliminacion(idAsistencia) {
         const confirmacion = await Swal.fire({
