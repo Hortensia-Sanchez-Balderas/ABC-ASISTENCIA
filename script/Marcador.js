@@ -12,9 +12,12 @@ document.getElementById('submit-btn').addEventListener('click', async function()
 
 const alertContainer = document.getElementById('alertContainer');
 
-const appendAlert = (message, type, heading, showAdditionalContent) => {
+const appendAlert = async (message, type, heading, showAdditionalContent) => {
+  let id = document.getElementById('id-input').value;
+  const mensajes = await obtenerMensajes(id) ?? []
+
   const additionalContent = showAdditionalContent ? 
-    '<p class="mb-0">Ingreso registrado 10:22:16.</p> <div class="d-flex justify-content-between"> <p class="mb-0">Tiene 2 mensajes nuevos.</p> <a href="../PROYECTO ABC ASISTENCIA/pages/IniciarSesion.html" class="login-link2">Iniciar sesión</a> </div>' 
+    `<p class="mb-0">Ingreso registrado ${obtenerHoraActual()}.</p> <div class="d-flex justify-content-between"> <p class="mb-0">Tiene ${mensajes.length} mensajes nuevos.</p> <a href="pages/IniciarSesion.html" class="login-link2">Iniciar sesión</a> </div>` 
     : '';
 
   const wrapper = document.createElement('div');
@@ -45,9 +48,57 @@ const marcarAsistencia = async (idEmpleado) => {
     }
 
     const data = await response.json();
-    appendAlert(`Asistencia marcada para el ID: ${idEmpleado}`, 'success', 'Éxito!', true);
+
+    const tipoEvento = data.tipo_evento;
+    let mensajeTipoEvento = '';
+
+    switch (tipoEvento) {
+      case 1:
+        mensajeTipoEvento = 'Inicio de turno';
+        break;
+
+      case 2:
+        mensajeTipoEvento = 'Inicio de hora de comida';
+        break;
+
+      case 3:
+        mensajeTipoEvento = 'Fin de hora de comida';
+        break;
+
+      case 4:
+        mensajeTipoEvento = 'Fin de turno';
+        break;
+
+      default:
+        mensajeTipoEvento = '';
+        break;
+    }
+
+    appendAlert(`${mensajeTipoEvento}. Asistencia marcada para el ID: ${idEmpleado}`, 'success', 'Éxito!', true);
     console.log({data});
   } catch (error) {
     appendAlert(error.message, 'danger', 'Error!', false);
   }
+}
+
+const obtenerMensajes = async (usuarioId) => {
+    try {
+        const response = await fetch(`${apiPath}/advertencias/advertenciasByEmpleado?id_empleado_destinatario=${usuarioId}`);
+
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error('Error:', error);
+        return [];
+    }
+}
+
+function obtenerHoraActual() {
+    const ahora = new Date();
+    return ahora.toLocaleTimeString('es-MX', { 
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
 }
