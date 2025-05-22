@@ -402,5 +402,14 @@
 	<script src="../script/bootstrap.bundle.min.js"></script>
     <script src="../script/Usuarios.js"></script>
 	<script src="../script/global.js"></script>
+  <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('abrirModal') === '1') {
+                const modal = new bootstrap.Modal(document.getElementById('modalAgregarUsuario'));
+                modal.show();
+            }
+        });
+</script>
 </body>
 </html>
