@@ -17,25 +17,26 @@ async function obtenerDatosDeAPI(fechaInicio = null, fechaFin = null) {
         if (fechaInicio) params.append('fechaInicio', fechaInicio.toISOString().split('T')[0]);
         if (fechaFin) params.append('fechaFin', fechaFin.toISOString().split('T')[0]);
 
-        const endpoint = `/asistencias/obtener-asistencias${params.toString() ? `?${params.toString()}` : ''}`;
+        const endpoint = `/asistencias/obtener-historial-asistencias${params.toString() ? `?${params.toString()}` : ''}`;
         const response = await fetch(API_BASE_URL + endpoint, {
-        method: 'GET',
-        headers: COMMON_HEADERS
-});
-if (!response.ok) throw new Error('Error en la respuesta de la API');
-const data = await response.json();
+            method: 'GET',
+            headers: COMMON_HEADERS
+        });
+        
+        if (!response.ok) throw new Error('Error en la respuesta de la API');
+        const data = await response.json();
 
         console.log("Datos recibidos de la API:", data);
 
         return data.map(asistencia => ({
-            idUsuario: asistencia.id_empleado || asistencia.idUsuario || 'N/A',
-            nombre: asistencia.Empleado?.nombre || 'Nombre no disponible',
-            horasRetardo: asistencia.minutos_retardo ? (asistencia.minutos_retardo / 60).toFixed(2) + " hrs" : "0 hrs",
-            cantidadRetardos: asistencia.retardos || 0,
-            cantidadFaltas: asistencia.faltas || 0,
-            salidasTemprano: asistencia.salidas_temprano || 0,
-            asistenciasTotales: asistencia.asistencias || 0,
-            horasTrabajadas: asistencia.horas_trabajadas ? asistencia.horas_trabajadas.toFixed(2) + " hrs" : "0 hrs",
+            idUsuario: asistencia.idEmpleado || 'N/A',
+            nombre: asistencia.nombreEmpleado || 'Nombre no disponible',
+            horasRetardo: asistencia.minutosRetardo ? (asistencia.minutosRetardo / 60).toFixed(2) + " hrs" : "0 hrs",
+            cantidadRetardos: asistencia.cantidadRetardos || 0,
+            cantidadFaltas: asistencia.cantidadFaltas || 0,
+            salidasTemprano: asistencia.cantidadSalidasTemprano || 0,
+            asistenciasTotales: asistencia.asistenciasTotales || 0, // Corregido el nombre del campo
+            horasTrabajadas: asistencia.horasTrabajadas ? asistencia.horasTrabajadas.toFixed(2) + " hrs" : "0 hrs",
             departamento: asistencia.departamento || 'Sin departamento'
         }));
     } catch (error) {
