@@ -183,9 +183,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 id_departamento: item.Empleado?.Departamento?.id_departamento ?? '',
                 rol: item.Empleado?.Rol?.nombre ?? 'Sin rol',
                 id_rol: item.Empleado?.Rol?.id_rol ?? '',
-                // Puedes adaptar estos campos según tu lógica de entrada/salida:
-                hora_entrada: item.tipo_evento === 1 ? formatearHora24(item.fecha_hora) : '-', // Ejemplo: tipo_evento 1 = entrada
-                hora_salida: item.tipo_evento === 2 ? formatearHora24(item.fecha_hora) : '-',  // Ejemplo: tipo_evento 2 = salida
+                hora_entrada: item.tipo_evento === 1 ? formatearHora24(item.fecha_hora) : '-', 
+                hora_salida: item.tipo_evento === 2 ? formatearHora24(item.fecha_hora) : '-',  
                 id_evento: item.id_evento ?? null,
                 fecha_hora: item.fecha_hora ?? null,
             }));
@@ -242,7 +241,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
             // Preparar datos para enviar
             const datosActualizados = {
-                id_asistencia: registroEditando.id_asistencia,
+                id_evento: registroEditando.id_evento,
                 hora_entrada: campoHoraEntrada.value,
                 hora_salida: campoHoraSalida.value
             };
@@ -311,7 +310,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
 
                 // Actualizar la UI
-                allData = allData.filter(item => item.id_asistencia !== parseInt(idAsistencia));
+                allData = allData.filter(item => item.id_evento !== parseInt(idAsistencia));
                 datosFiltrados = [...allData];
                 actualizarTabla();
                 
@@ -378,7 +377,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 </button>
             </td>
             <td>
-                <button class="btn btn-sm btn-outline-danger" onclick="confirmarEliminacion('${item.id_asistencia ?? item.id_turno}')">
+                <button class="btn btn-sm btn-outline-danger" onclick="confirmarEliminacion('${item.id_evento ?? item.id_turno}')">
                     <i class="bi bi-trash"></i>
                 </button>
             </td>
@@ -468,6 +467,8 @@ document.addEventListener("DOMContentLoaded", function() {
     paginacion.appendChild(liNext);
     }
     
+    window.abrirModalEdicion = abrirModalEdicion;
+    window.confirmarEliminacion = confirmarEliminacion;
     // Iniciar la aplicación
     init();
 });

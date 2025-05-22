@@ -1,68 +1,50 @@
-//Notas importantes
-//Buscar "endpoint" para modificar 
 // Variables globales para manejar el estado
 let datosCompletos = [];
 let datosFiltrados = [];
 let filasPorPagina = 10;
 let paginaActual = 1;
 
-// URL base de la API (debería ser configurada según el entorno)
-const API_BASE_URL = 'https://api.abcd-asistencia.com/v1';
+// URL base de la API
+const API_BASE_URL = 'https://abcd-asistencia.onrender.com';
 
+const COMMON_HEADERS = {
+    'Content-Type': 'application/json',
+};
 
-// Reemplaza la función obtenerDatosDeAPI con esta versión simulada
 async function obtenerDatosDeAPI(fechaInicio = null, fechaFin = null) {
-    // Simulamos un retraso de red de 800ms
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    // Generamos datos de ejemplo para 25 empleados
-    const datosSimulados = [];
-    const nombres = [
-        "Juan Pérez", "María García", "Carlos López", "Ana Martínez", "Luis Rodríguez",
-        "Laura Sánchez", "Pedro Ramírez", "Sofía Cruz", "Jorge Hernández", "Mónica Díaz",
-        "Fernando Gómez", "Elena Ruiz", "Roberto Morales", "Adriana Ortega", "Miguel Castro",
-        "Isabel Vargas", "Diego Mendoza", "Patricia Silva", "Ricardo Rojas", "Gabriela Torres",
-        "José Núñez", "Lucía Guzmán", "Arturo Medina", "Verónica Herrera", "Raúl Flores"
-    ];
-    
-    const departamentos = ["Ventas", "Recursos Humanos", "TI", "Contabilidad", "Marketing", "Operaciones"];
-    
-    // Generar datos para cada empleado
-    for (let i = 0; i < 25; i++) {
-        const id = i + 1; // ID numérico simple (1-25)
-        const minutosRetardo = Math.floor(Math.random() * 300); // 0-300 minutos
-        const retardos = Math.floor(Math.random() * 10); // 0-10 retardos
-        const faltas = Math.floor(Math.random() * 5); // 0-5 faltas
-        const salidasTemprano = Math.floor(Math.random() * 8); // 0-8 salidas temprano
-        const asistencias = 22 - faltas; // Asumiendo 22 días laborales
-        const horasTrabajadas = (asistencias * 8) - (minutosRetardo / 60); // 8 horas por día
-        
-        datosSimulados.push({
-            idUsuario: id, // Ahora es numérico
-            nombre: nombres[i],
-            horasRetardo: (minutosRetardo / 60).toFixed(2) + " hrs",
-            cantidadRetardos: retardos,
-            cantidadFaltas: faltas,
-            salidasTemprano: salidasTemprano,
-            asistenciasTotales: asistencias,
-            horasTrabajadas: horasTrabajadas.toFixed(2) + " hrs",
-            departamento: departamentos[Math.floor(Math.random() * departamentos.length)]
-        });
+    try {
+        let params = new URLSearchParams();
+        if (fechaInicio) params.append('fechaInicio', fechaInicio.toISOString().split('T')[0]);
+        if (fechaFin) params.append('fechaFin', fechaFin.toISOString().split('T')[0]);
+
+        const endpoint = `/asistencias/obtener-asistencias${params.toString() ? `?${params.toString()}` : ''}`;
+        const response = await fetch(API_BASE_URL + endpoint, {
+        method: 'GET',
+        headers: COMMON_HEADERS
+});
+if (!response.ok) throw new Error('Error en la respuesta de la API');
+const data = await response.json();
+
+        console.log("Datos recibidos de la API:", data);
+
+        return data.map(asistencia => ({
+            idUsuario: asistencia.id_empleado || asistencia.idUsuario || 'N/A',
+            nombre: asistencia.Empleado?.nombre || 'Nombre no disponible',
+            horasRetardo: asistencia.minutos_retardo ? (asistencia.minutos_retardo / 60).toFixed(2) + " hrs" : "0 hrs",
+            cantidadRetardos: asistencia.retardos || 0,
+            cantidadFaltas: asistencia.faltas || 0,
+            salidasTemprano: asistencia.salidas_temprano || 0,
+            asistenciasTotales: asistencia.asistencias || 0,
+            horasTrabajadas: asistencia.horas_trabajadas ? asistencia.horas_trabajadas.toFixed(2) + " hrs" : "0 hrs",
+            departamento: asistencia.departamento || 'Sin departamento'
+        }));
+    } catch (error) {
+        console.error('Error al obtener datos de la API:', error);
+        mostrarError('Error al cargar los datos de asistencia. Intente nuevamente.');
+        return [];
     }
-    
-    // Si hay filtros de fecha, simulamos que afectan los resultados
-    if (fechaInicio || fechaFin) {
-        // En una simulación real, podríamos ajustar los datos basados en las fechas
-        console.log(`Filtrando por fechas: ${fechaInicio?.toISOString() || 'sin inicio'} - ${fechaFin?.toISOString() || 'sin fin'}`);
-        
-        // Simulamos que algunos registros no cumplen con el filtro
-        return datosSimulados.slice(0, Math.floor(Math.random() * 15) + 10); // Devuelve 10-24 registros
-    }
-    
-    return datosSimulados;
 }
 
-// Modifica la función mostrarError para que use un toast más elegante
 function mostrarError(mensaje) {
     const toastHTML = `
         <div class="toast align-items-center text-white bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
@@ -88,7 +70,6 @@ function mostrarError(mensaje) {
     $('.toast').toast('show');
 }
 
-// Modifica la función mostrarCargando para un spinner más profesional
 function mostrarCargando(mostrar) {
     const tabla = document.querySelector('#tablaAsistencias tbody');
     if (mostrar) {
@@ -119,22 +100,18 @@ async function aplicarFiltros() {
     mostrarCargando(true);
     
     try {
-        // Convertir fechas a objetos Date si existen
         const fechaInicioObj = fechaInicio ? new Date(fechaInicio) : null;
         const fechaFinObj = fechaFin ? new Date(fechaFin) : null;
         
-        // ENDPOINT: Obtener datos filtrados por fecha desde la API
         datosCompletos = await obtenerDatosDeAPI(fechaInicioObj, fechaFinObj);
         
-        // Aplicar filtro de búsqueda localmente (podría ser otro endpoint si hay muchos datos)
         datosFiltrados = buscar ? 
             datosCompletos.filter(item => 
-                item.idUsuario.toLowerCase().includes(buscar) || 
+                item.idUsuario.toString().toLowerCase().includes(buscar) || 
                 item.nombre.toLowerCase().includes(buscar)
             ) : 
             [...datosCompletos];
         
-        // Resetear a la primera página después de filtrar
         paginaActual = 1;
         actualizarTabla();
         actualizarPaginacion();
@@ -143,13 +120,10 @@ async function aplicarFiltros() {
         console.error('Error al aplicar filtros:', error);
         mostrarError('Error al aplicar los filtros. Intente nuevamente.');
     } finally {
-        // Ocultar indicador de carga
         mostrarCargando(false);
     }
 }
 
-
-// Actualiza la función actualizarTabla para incluir estilos condicionales
 function actualizarTabla() {
     const inicio = (paginaActual - 1) * filasPorPagina;
     const fin = inicio + filasPorPagina;
@@ -174,23 +148,20 @@ function actualizarTabla() {
         const tr = document.createElement('tr');
         
         tr.innerHTML = `
-            <td>${asistencia.idUsuario}</td>
-            <td>${asistencia.nombre}</td>
-            <td>${asistencia.horasRetardo}</td>
-            <td>${asistencia.cantidadRetardos}</td>
-            <td>${asistencia.cantidadFaltas}</td>
-            <td>${asistencia.salidasTemprano}</td>
-            <td>${asistencia.asistenciasTotales}</td>
-            <td>${asistencia.horasTrabajadas}</td>
+            <td>${asistencia.idUsuario || 'N/A'}</td>
+            <td>${asistencia.nombre || 'Nombre no disponible'}</td>
+            <td>${asistencia.horasRetardo || '0 hrs'}</td>
+            <td>${asistencia.cantidadRetardos || 0}</td>
+            <td>${asistencia.cantidadFaltas || 0}</td>
+            <td>${asistencia.salidasTemprano || 0}</td>
+            <td>${asistencia.asistenciasTotales || 0}</td>
+            <td>${asistencia.horasTrabajadas || '0 hrs'}</td>
         `;
         tbody.appendChild(tr);
     });
 }
 
 
-/**
- * Función para actualizar la paginación
- */
 function actualizarPaginacion() {
     const totalPaginas = Math.ceil(datosFiltrados.length / filasPorPagina);
     const paginacion = document.querySelector('.pagination');
@@ -292,7 +263,7 @@ async function limpiarFiltros() {
     mostrarCargando(true);
     
     try {
-        // ENDPOINT: Obtener todos los datos sin filtros de fecha
+        // Obtener todos los datos sin filtros de fecha
         datosCompletos = await obtenerDatosDeAPI();
         datosFiltrados = [...datosCompletos];
         paginaActual = 1;
