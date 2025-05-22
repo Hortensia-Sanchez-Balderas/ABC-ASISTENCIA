@@ -5,95 +5,81 @@ let filasPorPagina = 10;
 let paginaActual = 1;
 
 // ENDPOINT: Obtener lista completa de departamentos (GET)
-function cargarDepartamentos() {
-  // Simulamos un retraso de red
-  setTimeout(() => {
-    departamentosCompletos = [
-      {
-        id: 1,
-        nombre: "Ventas",
-        descripcion: "Equipo encargado de las ventas y relaciones con clientes",
-        fechaRegistro: "15/03/2023"
-      },
-      {
-        id: 2,
-        nombre: "Recursos Humanos",
-        descripcion: "Gestión del talento humano en la organización",
-        fechaRegistro: "20/03/2023"
-      },
-      {
-        id: 3,
-        nombre: "Tecnología de la Información",
-        descripcion: "Soporte y desarrollo de sistemas informáticos",
-        fechaRegistro: "25/03/2023"
-      },
-      {
-        id: 4,
-        nombre: "Contabilidad",
-        descripcion: "Gestión financiera y contable de la empresa",
-        fechaRegistro: "01/04/2023"
-      },
-      {
-        id: 5,
-        nombre: "Marketing",
-        descripcion: "Estrategias de publicidad y posicionamiento de marca",
-        fechaRegistro: "05/04/2023"
+async function cargarDepartamentos() {
+  try {
+    const response = await fetch('https://abcd-asistencia.onrender.com/departamentos', {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
       }
-    ];
+    });
+    
+    if (!response.ok) throw new Error('Error al cargar departamentos');
+    
+    const data = await response.json();
+    departamentosCompletos = data.map(depto => ({
+      id: depto.id_departamento,
+      nombre: depto.nombre,
+      descripcion: depto.descripcion,
+      fechaRegistro: formatearHora24(depto.fecha_registro)
+    }));
     
     departamentosFiltrados = [...departamentosCompletos];
     actualizarTablaDepartamentos();
     actualizarPaginacion();
     
-    // Simulamos también la respuesta de la API para el select de departamentos en otras pantallas
-    if (typeof window.departamentosDisponibles === 'undefined') {
-      window.departamentosDisponibles = departamentosCompletos.map(depto => ({
-        id_departamento: depto.id,
-        nombre: depto.nombre
-      }));
-    }
-  }, 800);
+    // Actualizar variable global para selects
+    window.departamentosDisponibles = departamentosCompletos.map(depto => ({
+      id_departamento: depto.id,
+      nombre: depto.nombre
+    }));
+    
+  } catch (error) {
+    console.error('Error:', error);
+    mostrarError('No se pudieron cargar los departamentos');
+  }
 }
 
 // ENDPOINT: Agregar nuevo departamento (POST)
 
 // Simula la función agregarDepartamento()
-function agregarDepartamento(nombre, descripcion) {
-  return new Promise((resolve) => {
-    // Simulamos un retraso de red
-    setTimeout(() => {
-      // Generar un nuevo ID
-      const nuevoId = Math.max(...departamentosCompletos.map(d => d.id), 0) + 1;
-      
-      const nuevoDepartamento = {
-        id: nuevoId,
-        nombre: nombre,
-        descripcion: descripcion,
-        fechaRegistro: new Date().toLocaleDateString('es-ES')
-      };
-      
-      // Agregar a los arrays
-      departamentosCompletos.unshift(nuevoDepartamento);
-      departamentosFiltrados.unshift(nuevoDepartamento);
-      
-      // Actualizar también la variable global para otros selects
-      window.departamentosDisponibles.unshift({
-        id_departamento: nuevoId,
-        nombre: nombre
-      });
-      
-      // Actualizar la UI
-      actualizarTablaDepartamentos();
-      actualizarPaginacion();
-      
-      // Mostrar mensaje de éxito
-      mostrarExito('Departamento agregado correctamente (simulado)');
-      $('#modalAgregarDepartamento').modal('hide');
-      resetFormularioDepartamento();
-      
-      resolve({ success: true });
-    }, 600);
-  });
+async function agregarDepartamento(nombre, descripcion) {
+  try {
+    const response = await fetch('https://abcd-asistencia.onrender.com/departamentos/createDepartamento', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+      },
+      body: JSON.stringify({
+        nombre,
+        descripcion
+      })
+    });
+    
+    if (!response.ok) throw new Error('Error al crear departamento');
+    
+    const nuevoDepto = await response.json();
+    
+    // Agregar a los arrays locales
+    departamentosCompletos.unshift({
+      id: nuevoDepto.id_departamento,
+      nombre: nuevoDepto.nombre,
+      descripcion: nuevoDepto.descripcion,
+      fechaRegistro: formatearHora24(nuevoDepto.fecha_registro)
+    });
+    
+    departamentosFiltrados = [...departamentosCompletos];
+    
+    mostrarExito('Departamento creado correctamente');
+    $('#modalAgregarDepartamento').modal('hide');
+    resetFormularioDepartamento();
+    actualizarTablaDepartamentos();
+    actualizarPaginacion();
+    
+  } catch (error) {
+    console.error('Error:', error);
+    mostrarError(error.message || 'Error al crear departamento');
+  }
 }
 
 
@@ -254,12 +240,7 @@ function mostrarExito(mensaje) {
     $('.toast').toast('show');
 }
 
-// Función para formatear fecha
-function formatearFecha(fecha) {
-    if (!fecha) return null;
-    const date = new Date(fecha);
-    return date.toLocaleDateString('es-ES');
-}
+
 
 //////////////////////////////////MODAL EDICION
 // Función para mostrar el modal de edición
@@ -279,54 +260,118 @@ function mostrarModalEditarDepartamento(id) {
 }
 
 // Función para guardar los cambios al editar
-function guardarEdicionDepartamento() {
-    const id = document.getElementById('editarIdDepartamento').value;
-    const nombre = document.getElementById('editarNombreDepartamento').value.trim();
-    const descripcion = document.getElementById('editarDescripcionDepartamento').value.trim();
+async function guardarEdicionDepartamento() {
+  const id = document.getElementById('editarIdDepartamento').value;
+  const nombre = document.getElementById('editarNombreDepartamento').value.trim();
+  const descripcion = document.getElementById('editarDescripcionDepartamento').value.trim();
 
-    if (!nombre) {
-        mostrarError('El nombre del departamento es requerido');
-        return;
+  if (!nombre) {
+    mostrarError('El nombre del departamento es requerido');
+    return;
+  }
+
+  try {
+    const response = await fetch(`https://abcd-asistencia.onrender.com/departamentos/updateDepartamento`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+      },
+      body: JSON.stringify({
+        idDepartamento: parseInt(id), // Asegurar que es número
+        nombre: nombre,
+        descripcion: descripcion
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Error al actualizar departamento');
     }
-
-    // Simulación de actualización (en un entorno real sería una llamada AJAX)
+    
+    // Actualizar localmente
     const index = departamentosCompletos.findIndex(d => d.id == id);
     if (index !== -1) {
-        departamentosCompletos[index] = {
-            ...departamentosCompletos[index],
-            nombre: nombre,
-            descripcion: descripcion
-        };
-
-        // Actualizar también en departamentosFiltrados si existe
-        const filtradoIndex = departamentosFiltrados.findIndex(d => d.id == id);
-        if (filtradoIndex !== -1) {
-            departamentosFiltrados[filtradoIndex] = {...departamentosCompletos[index]};
-        }
-
-        mostrarExito('Departamento actualizado correctamente');
-        actualizarTablaDepartamentos();
-        
-        const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarDepartamento'));
-        modal.hide();
-    } else {
-        mostrarError('No se encontró el departamento para actualizar');
+      departamentosCompletos[index] = {
+        ...departamentosCompletos[index],
+        nombre,
+        descripcion
+      };
+      
+      const filtradoIndex = departamentosFiltrados.findIndex(d => d.id == id);
+      if (filtradoIndex !== -1) {
+        departamentosFiltrados[filtradoIndex] = {...departamentosCompletos[index]};
+      }
+      
+      mostrarExito('Departamento actualizado correctamente');
+      actualizarTablaDepartamentos();
+      
+      const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarDepartamento'));
+      modal.hide();
     }
+    
+  } catch (error) {
+    console.error('Error:', error);
+    mostrarError(error.message || 'Error al actualizar departamento');
+  }
 }
 
 // Función para eliminar un departamento
-function eliminarDepartamento(id) {
-    if (!confirm('¿Está seguro que desea eliminar este departamento?')) {
-        return;
+async function eliminarDepartamento(id) {
+  if (!confirm('¿Está seguro que desea eliminar este departamento?')) {
+    return;
+  }
+
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    mostrarError('Sesión expirada. Por favor inicie sesión nuevamente.');
+    window.location.href = '/login.html';
+    return;
+  }
+
+  try {
+    // Obtener el departamento primero para mostrar info en el cuerpo
+    const departamento = departamentosCompletos.find(d => d.id == id);
+    if (!departamento) {
+      mostrarError('Departamento no encontrado');
+      return;
     }
 
-    // Simulación de eliminación (en un entorno real sería una llamada AJAX)
+    const response = await fetch('https://abcd-asistencia.onrender.com/departamentos/deleteDepartamento', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({
+        idDepartamento: parseInt(id),
+        nombre: departamento.nombre,
+        descripcion: departamento.descripcion
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Error al eliminar departamento');
+    }
+
+    // Actualizar localmente
     departamentosCompletos = departamentosCompletos.filter(d => d.id != id);
     departamentosFiltrados = departamentosFiltrados.filter(d => d.id != id);
+
+    // Actualizar variable global si existe
+    if (window.departamentosDisponibles) {
+      window.departamentosDisponibles = window.departamentosDisponibles.filter(d => d.id_departamento != id);
+    }
 
     mostrarExito('Departamento eliminado correctamente');
     actualizarTablaDepartamentos();
     actualizarPaginacion();
+
+  } catch (error) {
+    console.error('Error al eliminar departamento:', error);
+    mostrarError(error.message || 'Error al eliminar departamento. Intente nuevamente.');
+  }
 }
 
 // Event listeners

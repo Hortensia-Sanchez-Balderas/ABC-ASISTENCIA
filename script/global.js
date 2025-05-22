@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", function() {
       link.addEventListener('click', setActiveLink);
     });
   });
-// -------------------- FUNCIÓN PARA FORMATEO DE HORAS (24h) Pantallas:listaAsistencia, --------------------
+// -------------------- FUNCIÓN PARA FORMATEO DE HORAS (24h) Pantallas:listaAsistencia, Departamento--------------------
 /**
  * Estandariza una hora al formato 24h (HH:MM)
  * @param {string} hora - Hora en cualquier formato
