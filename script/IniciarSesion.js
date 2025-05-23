@@ -4,8 +4,8 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 async function iniciarSesion() {
-    const idEmpleado = document.getElementById('idEmpleado').value;
-    const password = document.getElementById('password').value;
+    const numeroEmpleado = document.getElementById('idEmpleado').value;
+    const contrasena = document.getElementById('password').value;
 
     const apiUrl = 'https://abcd-asistencia.onrender.com/empleados/login';
 
@@ -21,8 +21,8 @@ async function iniciarSesion() {
                 'Accept': 'application/json'
             },
             body: JSON.stringify({
-                name: idEmpleado,
-                contraseña: password || "ASCD3"
+                numeroEmpleado: Number(numeroEmpleado),
+                contrasena: contrasena
             })
         });
 
@@ -33,27 +33,17 @@ async function iniciarSesion() {
         const result = await response.json();
         console.log('Respuesta completa:', result);
 
-        if (!result.data || !result.data.token) {
-            throw new Error('No se recibió token en la respuesta');
-        }
-
-        // Decodificar el token JWT para obtener el rol
-        const tokenPayload = JSON.parse(atob(result.data.token.split('.')[1]));
-        console.log('Datos del token:', tokenPayload);
-
-        if (!tokenPayload.id_rol) {
-            throw new Error('El token no contiene información de rol');
+        if (!result.data || !result.data.id_rol) {
+            throw new Error('No se recibió información de rol en la respuesta');
         }
 
         // Redirigir según el rol
-        if (tokenPayload.id_rol === 3) {
-            localStorage.setItem('authToken', result.data.token);
+        if (result.data.id_rol === 3) {
             window.location.href = '../pages/DashboardAdmin.html';
-        } else if (tokenPayload.id_rol === 4) {
-            localStorage.setItem('authToken', result.data.token);
+        } else if (result.data.id_rol === 4) {
             window.location.href = '../pages/DashboardEmpleado.html';
         } else {
-            alert(`Rol no reconocido (ID: ${tokenPayload.id_rol}). Contacta al administrador.`);
+            alert(`Rol no reconocido (ID: ${result.data.id_rol}). Contacta al administrador.`);
         }
 
     } catch (error) {
@@ -61,6 +51,7 @@ async function iniciarSesion() {
         alert(`Error al iniciar sesión: ${error.message}`);
     } finally {
         // Restaurar estado del botón
+        const loginButton = document.querySelector('.button');
         loginButton.disabled = false;
         loginButton.value = "Ingresar";
     }
