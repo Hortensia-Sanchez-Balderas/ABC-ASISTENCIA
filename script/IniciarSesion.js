@@ -48,6 +48,8 @@ async function iniciarSesion() {
         const result = await response.json();
         console.log('Respuesta completa:', result);
 
+        localStorage.setItem('authToken', result.data.token);
+
         if (!result.data || !result.data.token) {
             throw new Error('No se recibió el token en la respuesta');
         }
