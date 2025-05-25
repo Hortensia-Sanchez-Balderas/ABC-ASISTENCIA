@@ -4,6 +4,29 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>ABC Asistencia - Departamentos</title>
+	<!-- jwt -->
+    <script src="https://cdn.jsdelivr.net/npm/jwt-decode@3.1.2/build/jwt-decode.min.js"></script>
+    <!-- Obtiene el rol del token, y valida si es 3 -->
+    <script>
+        const allowedRole = [3]
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+            localStorage.removeItem("authToken");
+            alert("No tienes permiso para acceder a esta página.");
+            window.location.href = "../Marcador.html";
+        }
+
+        console.log({ token });
+        
+        const decodedToken = jwt_decode(token);
+        const userRole = decodedToken.id_rol;
+        console.log({ userRole })
+        if (!allowedRole.includes(userRole)) {
+            localStorage.removeItem("authToken");
+            alert("No tienes permiso para acceder a esta página.");
+            window.location.href = "../Marcador.html";
+        }
+    </script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Abel&family=Koukhmer+Sleokchher&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="../css/bootstrap-icons.min.css">
