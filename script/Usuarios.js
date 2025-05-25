@@ -1,7 +1,3 @@
-// Notas importantes
-// Se han reemplazado los ENDPOINTS con datos simulados para desarrollo
-
-// Variables globales para manejar el estado
 let usuariosCompletos = [];
 let usuariosFiltrados = [];
 let filasPorPagina = 10;
@@ -62,11 +58,10 @@ const datosSimulados = {
   ]
 };
 
-// Simulación de ENDPOINT: Obtener lista completa de usuarios (GET)
+//ENDPOINT: Obtener lista completa de usuarios (GET)
 async function cargarUsuarios() {
   const empleados = await obtenerUsuarios();
 
-  // Simulamos un retraso de red
   usuariosCompletos = empleados.map(usuario => ({
     idUsuario: usuario.id_empleado,
     nombre: usuario.nombre,
@@ -82,11 +77,11 @@ async function cargarUsuarios() {
   actualizarPaginacionUsuarios();
 }
 
-// Simulación de ENDPOINT: Obtener departamentos para select (GET)
+//ENDPOINT: Obtener departamentos para select (GET)
 async function cargarDepartamentos() {
   const departamentos = await obtenerDepartamentos() 
 
-  // Simulamos un retraso de red
+  
   departamentosDisponibles = departamentos.map(departamento => ({
     id_departamento: departamento.id_departamento,
     nombre: departamento.nombre
@@ -109,9 +104,8 @@ async function cargarDepartamentos() {
   });
 }
 
-// Simulación de ENDPOINT: Obtener días de la semana (GET)
+//ENDPOINT: Obtener días de la semana (GET)
 function cargarDiasSemana() {
-  // Simulamos un retraso de red
   setTimeout(() => {
     diasSemana = datosSimulados.dias;
     
@@ -210,7 +204,7 @@ function actualizarTablaUsuarios() {
 }
 
 
-// Simulación de ENDPOINT: Eliminar usuario (DELETE)
+// ENDPOINT: Eliminar usuario (DELETE)
 async function manejarEliminarUsuario(idUsuario) {
   if (!confirm(`¿Estás seguro de eliminar al usuario con ID: ${idUsuario}?`)) return;
 
@@ -231,6 +225,7 @@ async function manejarEliminarUsuario(idUsuario) {
 // -------------------------------------------------------Función para mostrar el modal de agregar usuario
 // Función para mostrar el modal de agregar usuario
 function mostrarModalAgregarUsuario() {
+  document.getElementById('idUsuario').value = '';
   document.getElementById('modalAgregarUsuarioLabel').textContent = 'Agregar Nuevo Usuario';
   document.getElementById('formAgregarUsuario').reset();
   horariosTemporales = [];
@@ -240,20 +235,22 @@ function mostrarModalAgregarUsuario() {
   modal.show();
 }
 
-// Simulación de ENDPOINT: Crear nuevo usuario (POST)
 async function guardarUsuario() {
+  const btnGuardar = document.getElementById('btnGuardarUsuario');
+  btnGuardar.disabled = true; // Deshabilita el botón al iniciar
+
   const idUsuario = document.getElementById('idUsuario').value;
   const nombreUsuario = document.getElementById('nombreUsuario').value;
   const departamentoUsuario = document.getElementById('departamentoUsuario').value;
   const contrasenaUsuario = document.getElementById('contrasenaUsuario').value;
   const rolUsuario = document.getElementById('rolUsuario').value;
-  
+
   if (!nombreUsuario || !departamentoUsuario || !contrasenaUsuario || !rolUsuario) {
     mostrarError('Por favor complete todos los campos obligatorios');
+    btnGuardar.disabled = false; // Rehabilita si hay error de validación
     return;
   }
-  
-  // Crear el nuevo usuario simulado
+
   const nuevoUsuario = {
     nombre: nombreUsuario,
     departamento: departamentosDisponibles.find(d => d.id_departamento == departamentoUsuario)?.nombre || 'Sin departamento',
@@ -272,75 +269,57 @@ async function guardarUsuario() {
   };
 
   try {
-    await crearEmpleado(nuevoUsuario)
-    await cargarUsuarios(); // Recargar la lista de usuarios
-
-    mostrarExito('Usuario creado correctamente');
+     const respuesta = await crearEmpleado(nuevoUsuario);
+    await cargarUsuarios();
+    mostrarExito(`Usuario creado correctamente. ID asignado: ${respuesta.idEmpleado || respuesta.id_empleado || 'N/A'}`);
     actualizarTablaUsuarios();
     actualizarPaginacionUsuarios();
+
+    // Cerrar el modal automáticamente
+    const modal = bootstrap.Modal.getInstance(document.getElementById('modalAgregarUsuario'));
+    modal.hide();
   } catch (error) {
     console.error('Error al crear el empleado:', error);
     mostrarError('Error al crear el empleado');
+    btnGuardar.disabled = false; // Rehabilita si hay error en la petición
     return;
   }
-  
-  // Agregar a la lista (simulación)
-  // usuariosCompletos.unshift(nuevoUsuario);
-  // usuariosFiltrados.unshift(nuevoUsuario);
-  
-  
-  const modal = bootstrap.Modal.getInstance(document.getElementById('modalAgregarUsuario'));
-  modal.hide();
+
+  btnGuardar.disabled = false; 
 }
 
 
 // ---------------------------------------------------Función para mostrar el modal de edición---------------------------------------
 function mostrarModalEditarUsuario(usuario) {
-    // Limpiar formulario y horarios
-    document.getElementById('formEditarUsuario').reset();
-    horariosTemporales = [];
-    
-    // Llenar datos básicos
+    // Rellena los campos del modal con los datos del usuario
     document.getElementById('editarIdUsuario').value = usuario.idUsuario;
     document.getElementById('editarNombreUsuario').value = usuario.nombre;
+    document.getElementById('editarDepartamentoUsuario').value = usuario.idDepartamento;
 
-    // Seleccionar el rol actual
-     if (usuario.idRol) {
-    document.getElementById('editarRolUsuario').value = usuario.idRol;
-  }
-    
-    // Asegurarse que los departamentos están cargados
-    if (departamentosDisponibles.length === 0) {
-        cargarDepartamentos().then(() => {
-            document.getElementById('editarDepartamentoUsuario').value = usuario.idDepartamento;
-        });
+    if (usuario.idRol) {
+        document.getElementById('editarRolUsuario').value = usuario.idRol;
+    }
+    if (usuario.contrasena) {
+        document.getElementById('editarContrasenaUsuario').value = usuario.contrasena;
     } else {
-        document.getElementById('editarDepartamentoUsuario').value = usuario.idDepartamento;
+        document.getElementById('editarContrasenaUsuario').value = '';
     }
-    
-    // Cargar horarios existentes
-    if (usuario.horarios && usuario.horarios.length > 0) {
-        horariosTemporales = usuario.horarios.map(h => ({
-            idDia: h.idDia || h.id_dia,
-            nombreDia: diasSemana.find(d => d.id_dia == (h.idDia || h.id_dia))?.nombre || 'Día',
-            horaEntrada: h.horaEntrada || h.hora_entrada_estandar,
-            horaSalida: h.horaSalida || h.hora_salida_estandar,
-            laborable: h.laborable !== false
-        }));
-    }
-    
-    actualizarTablaHorarios('tablaHorariosEdicion');
-    
-    // Inicializar modal solo si no existe
-    const modalElement = document.getElementById('modalEditarUsuario');
-    let modal = bootstrap.Modal.getInstance(modalElement);
-    if (!modal) {
-        modal = new bootstrap.Modal(modalElement);
-    }
+
+    horariosTemporales = (usuario.horarios || []).map(h => ({
+    idDia: h.id_dia || h.idDia,
+    nombreDia: (h.Dia && h.Dia.nombre) || h.nombreDia || '',
+    horaEntrada: extraerHora(h.hora_entrada_estandar || h.horaEntrada),
+    horaSalida: extraerHora(h.hora_salida_estandar || h.horaSalida),
+    laborable: h.laborable
+  }));
+  actualizarTablaHorarios('tablaHorariosEdicion');
+
+    // Mostrar el modal
+    const modal = new bootstrap.Modal(document.getElementById('modalEditarUsuario'));
     modal.show();
 }
 
-// Simulación de ENDPOINT: Actualizar usuario (PUT)
+//ENDPOINT: Actualizar usuario (PUT)
 async function guardarEdicionUsuario() {
     const idUsuario = document.getElementById('editarIdUsuario').value;
     const nombreUsuario = document.getElementById('editarNombreUsuario').value;
@@ -348,12 +327,11 @@ async function guardarEdicionUsuario() {
     const contrasenaUsuario = document.getElementById('editarContrasenaUsuario').value;
     const rolUsuario = document.getElementById('editarRolUsuario').value;
 
-    if (!nombreUsuario || !departamentoUsuario || !contrasenaUsuario || !rolUsuario) {
+    if (!nombreUsuario || !departamentoUsuario || !rolUsuario) {
         mostrarError('Por favor complete todos los campos obligatorios');
         return;
     }
 
-    // Crear el nuevo usuario simulado
     const nuevoUsuario = {
         idUsuario: idUsuario,
         nombre: nombreUsuario,
@@ -372,7 +350,7 @@ async function guardarEdicionUsuario() {
 
     try {
         await updateEmpleado(idUsuario, nuevoUsuario);
-        await cargarUsuarios(); // Recargar la lista de usuarios
+        await cargarUsuarios(); 
 
         mostrarExito('Usuario actualizado correctamente');
         actualizarTablaUsuarios();
@@ -393,7 +371,7 @@ function manejarEditarUsuario(idUsuario) {
     const usuarioExistente = usuariosCompletos.find(u => u.idUsuario == idUsuario);
     
     if (usuarioExistente) {
-        // Crear objeto con estructura consistente
+        // Crear objeto para editar
         const usuarioParaEditar = {
             idUsuario: usuarioExistente.idUsuario,
             nombre: usuarioExistente.nombre,
@@ -424,38 +402,34 @@ function manejarEditarUsuario(idUsuario) {
     }
 }
 
-// Modificar funciones de horarios para soportar múltiples modales
 function agregarHorarioTemporal(diaId, entradaId, salidaId, tablaId) {
   const diaSelect = document.getElementById(diaId);
-  const horaEntrada = document.getElementById(entradaId).value; // Asume input time (24h)
-  const horaSalida = document.getElementById(salidaId).value;   // Asume input time (24h)
-  
+  const horaEntrada = document.getElementById(entradaId).value;
+  const horaSalida = document.getElementById(salidaId).value;
+
   if (!diaSelect.value) {
     alert('Por favor seleccione un día');
     return;
   }
-  
   if (!horaEntrada || !horaSalida) {
     alert('Por favor ingrese ambas horas (entrada y salida)');
     return;
   }
-  
-  if (horariosTemporales.some(h => h.idDia === diaSelect.value)) {
-    alert('Este día ya tiene un horario configurado');
-    return;
-  }
-  
+
+  // Elimina el horario anterior de ese día si existe (para reemplazar)
+  horariosTemporales = horariosTemporales.filter(h => h.idDia != diaSelect.value);
+
   const nuevoHorario = {
     idDia: diaSelect.value,
     nombreDia: diaSelect.options[diaSelect.selectedIndex].text,
-    horaEntrada: horaEntrada, // Guardar en 24h
-    horaSalida: horaSalida,   // Guardar en 24h
+    horaEntrada: horaEntrada,
+    horaSalida: horaSalida,
     laborable: true
   };
-  
+
   horariosTemporales.push(nuevoHorario);
   actualizarTablaHorarios(tablaId);
-  
+
   // Limpiar campos
   document.getElementById(entradaId).value = '';
   document.getElementById(salidaId).value = '';
@@ -464,33 +438,129 @@ function agregarHorarioTemporal(diaId, entradaId, salidaId, tablaId) {
 function actualizarTablaHorarios(tablaId) {
   const tbody = document.querySelector(`#${tablaId} tbody`);
   tbody.innerHTML = '';
-  
-  if (horariosTemporales.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">No hay horarios configurados</td></tr>';
-    return;
-  }
-  
-  horariosTemporales.forEach(horario => {
-    const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td>${horario.nombreDia}</td>
-      <td>${horario.horaEntrada}</td> <!-- Mostrar directamente en 24h -->
-      <td>${horario.horaSalida}</td>   <!-- Mostrar directamente en 24h -->
-      <td><span class="badge bg-success">Sí</span></td>
-      <td>
-        <button class="btn btn-sm btn-outline-danger btn-eliminar-horario" data-dia="${horario.idDia}">
-          <i class="bi bi-trash"></i>
-        </button>
-      </td>
-    `;
 
-    tbody.appendChild(tr);
-  });
+  // Si es edición, mostrar los 7 días siempre
+  if (tablaId === 'tablaHorariosEdicion') {
+    diasSemana.forEach(dia => {
+      // Busca si el día está en horariosTemporales
+      const horario = horariosTemporales.find(h => h.idDia == dia.id_dia);
+      let horaEntrada = '';
+      let horaSalida = '';
+      let laborable = false;
+
+      if (horario) {
+        horaEntrada = extraerHora(horario.horaEntrada || horario.hora_entrada_estandar);
+        horaSalida = extraerHora(horario.horaSalida || horario.hora_salida_estandar);
+        laborable = horario.laborable;
+      }
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${dia.nombre}</td>
+        <td>${horaEntrada}</td>
+        <td>${horaSalida}</td>
+        <td><span class="badge ${laborable ? 'bg-success' : 'bg-secondary'}">${laborable ? 'Sí' : 'No'}</span></td>
+        <td>
+          <button class="btn btn-sm btn-outline-danger btn-eliminar-horario" data-dia="${dia.id_dia}">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } else {
+    // Modal agregar: solo mostrar los días agregados
+    if (horariosTemporales.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">No hay horarios configurados</td></tr>';
+      return;
+    }
+    horariosTemporales.forEach(horario => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${horario.nombreDia}</td>
+        <td>${extraerHora(horario.horaEntrada)}</td>
+        <td>${extraerHora(horario.horaSalida)}</td>
+        <td><span class="badge ${horario.laborable ? 'bg-success' : 'bg-secondary'}">${horario.laborable ? 'Sí' : 'No'}</span></td>
+        <td>
+          <button class="btn btn-sm btn-outline-danger btn-eliminar-horario" data-dia="${horario.idDia}">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+}
+
+function actualizarTablaHorarios(tablaId) {
+  const tbody = document.querySelector(`#${tablaId} tbody`);
+  tbody.innerHTML = '';
+
+  // Si es edición, mostrar SIEMPRE los 7 días
+  if (tablaId === 'tablaHorariosEdicion') {
+    diasSemana.forEach(dia => {
+      // Buscar si el día está en horariosTemporales
+      const horario = horariosTemporales.find(h => h.idDia == dia.id_dia);
+      let horaEntrada = '';
+      let horaSalida = '';
+      let laborable = false;
+
+      if (horario) {
+        horaEntrada = extraerHora(horario.horaEntrada || horario.hora_entrada_estandar);
+        horaSalida = extraerHora(horario.horaSalida || horario.hora_salida_estandar);
+        laborable = horario.laborable;
+      }
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${dia.nombre}</td>
+        <td>${horaEntrada}</td>
+        <td>${horaSalida}</td>
+        <td><span class="badge ${laborable ? 'bg-success' : 'bg-secondary'}">${laborable ? 'Sí' : 'No'}</span></td>
+        <td>
+          <button class="btn btn-sm btn-outline-danger btn-eliminar-horario" data-dia="${dia.id_dia}">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } else {
+    // Modal agregar: solo mostrar los días agregados
+    if (horariosTemporales.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="5" class="text-center py-3">No hay horarios configurados</td></tr>';
+      return;
+    }
+    horariosTemporales.forEach(horario => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${horario.nombreDia}</td>
+        <td>${extraerHora(horario.horaEntrada)}</td>
+        <td>${extraerHora(horario.horaSalida)}</td>
+        <td><span class="badge ${horario.laborable ? 'bg-success' : 'bg-secondary'}">${horario.laborable ? 'Sí' : 'No'}</span></td>
+        <td>
+          <button class="btn btn-sm btn-outline-danger btn-eliminar-horario" data-dia="${horario.idDia}">
+            <i class="bi bi-trash"></i>
+          </button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
 }
 
 function eliminarHorarioTemporal(idDia, tablaId) {
   horariosTemporales = horariosTemporales.filter(h => h.idDia !== idDia);
   actualizarTablaHorarios(tablaId);
+}
+
+function extraerHora(valor) {
+  if (!valor || valor === "1970-01-01T00:00:00.000Z") return "";
+  // Si ya viene en formato "HH:mm:ss" o "HH:mm"
+  if (/^\d{2}:\d{2}(:\d{2})?$/.test(valor)) return valor.length === 5 ? valor + ':00' : valor;
+  // Si viene en formato ISO
+  const d = new Date(valor);
+  return d.toISOString().substr(11, 8); // "HH:mm:ss"
 }
 
 // Funciones para mostrar mensajes
@@ -519,13 +589,12 @@ function mostrarError(mensaje) {
 }
 
 
-// CAMBIO: Función para cambiar de página (nueva función)
+//Función para cambiar de página
 function cambiarPaginaUsuarios(nuevaPagina) {
     paginaActual = nuevaPagina;
     actualizarTablaUsuarios();
     actualizarPaginacionUsuarios();
     
-    // Desplazarse suavemente al inicio de la tabla
     document.querySelector('#tablaUsuarios').scrollIntoView({ behavior: 'smooth' });
 }
 
@@ -585,19 +654,19 @@ document.addEventListener('DOMContentLoaded', async function() {
     document.body.appendChild(toastContainer);
     
     // Configurar eventos con verificación
-const btnBuscar = document.getElementById('btnBuscar');
-const btnLimpiar = document.getElementById('btnLimpiar');
-const buscarInput = document.getElementById('buscarUsuario');
+    const btnBuscar = document.getElementById('btnBuscar');
+    const btnLimpiar = document.getElementById('btnLimpiar');
+    const buscarInput = document.getElementById('buscarUsuario');
 
-if (btnBuscar && btnLimpiar && buscarInput) {
-    btnBuscar.addEventListener('click', aplicarFiltrosUsuarios);
-    btnLimpiar.addEventListener('click', limpiarFiltrosUsuarios);
-    buscarInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') aplicarFiltrosUsuarios();
-    });
-} else {
-    console.error('No se encontraron uno o más elementos requeridos');
-}
+    if (btnBuscar && btnLimpiar && buscarInput) {
+        btnBuscar.addEventListener('click', aplicarFiltrosUsuarios);
+        btnLimpiar.addEventListener('click', limpiarFiltrosUsuarios);
+        buscarInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') aplicarFiltrosUsuarios();
+        });
+    } else {
+        console.error('No se encontraron uno o más elementos requeridos');
+    }
     // Configurar eventos
     document.getElementById('btnAgregarUsuario').addEventListener('click', mostrarModalAgregarUsuario);
     document.getElementById('btnBuscar').addEventListener('click', aplicarFiltrosUsuarios);
@@ -654,18 +723,18 @@ if (btnBuscar && btnLimpiar && buscarInput) {
     
     // Eventos para modal de agregar
    // En tu DOMContentLoaded:
-document.getElementById('btnAgregarHorario').addEventListener('click', function() {
-    agregarHorarioTemporal('diaHorario', 'horaEntrada', 'horaSalida', 'tablaHorarios');
-});
+    document.getElementById('btnAgregarHorario').addEventListener('click', function() {
+        agregarHorarioTemporal('diaHorario', 'horaEntrada', 'horaSalida', 'tablaHorarios');
+    });
 
-document.getElementById('tablaHorariosEdicion').addEventListener('click', function(e) {
-    if (e.target.closest('.btn-eliminar-horario')) {
-        const idDia = e.target.closest('.btn-eliminar-horario').getAttribute('data-dia');
-        eliminarHorarioTemporal(idDia, 'tablaHorariosEdicion');
-    }
-});
+    document.getElementById('tablaHorariosEdicion').addEventListener('click', function(e) {
+        if (e.target.closest('.btn-eliminar-horario')) {
+            const idDia = e.target.closest('.btn-eliminar-horario').getAttribute('data-dia');
+            eliminarHorarioTemporal(idDia, 'tablaHorariosEdicion');
+        }
+    });
 
-// document.getElementById('btnGuardarEdicion').addEventListener('click', guardarEdicionUsuario);
+    // document.getElementById('btnGuardarEdicion').addEventListener('click', guardarEdicionUsuario);
     document.getElementById('btnAgregarUsuario').addEventListener('click', mostrarModalAgregarUsuario);
     
     // Eventos para modal de edición
@@ -739,9 +808,9 @@ const crearEmpleado = async (nuevoUsuario) => {
     // Convertir el objeto nuevoUsuario a la estructura del backend
     const requestPayload = {
         nombre: nuevoUsuario.nombre,
-        idDepartamento: parseInt(nuevoUsuario.idDepartamento),  // Asegurarse que el id sea un número
+        idDepartamento: parseInt(nuevoUsuario.idDepartamento),  // Asegurar que el id sea un número
         contrasena: nuevoUsuario.contrasena,
-        idRol: parseInt(nuevoUsuario.idRol),  // Asegurarse que el idRol sea un número
+        idRol: parseInt(nuevoUsuario.idRol),  // Asegurar que el idRol sea un número
         diasLaborales: {}
     };
 
