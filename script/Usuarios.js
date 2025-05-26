@@ -555,12 +555,12 @@ function eliminarHorarioTemporal(idDia, tablaId) {
 }
 
 function extraerHora(valor) {
-  if (!valor || valor === "1970-01-01T00:00:00.000Z") return "";
-  // Si ya viene en formato "HH:mm:ss" o "HH:mm"
-  if (/^\d{2}:\d{2}(:\d{2})?$/.test(valor)) return valor.length === 5 ? valor + ':00' : valor;
-  // Si viene en formato ISO
-  const d = new Date(valor);
-  return d.toISOString().substr(11, 8); // "HH:mm:ss"
+    if (!valor || valor === "1970-01-01T00:00:00.000Z") return "";
+    // Si ya viene en formato "HH:mm:ss" o "HH:mm"
+    if (/^\d{2}:\d{2}(:\d{2})?$/.test(valor)) return valor.substr(0, 5);
+    // Si viene en formato ISO
+    const d = new Date(valor);
+    return d.toISOString().substr(11, 5); // "HH:mm"
 }
 
 // Funciones para mostrar mensajes

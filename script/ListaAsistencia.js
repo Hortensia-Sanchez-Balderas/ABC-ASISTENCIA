@@ -165,8 +165,7 @@ document.addEventListener("DOMContentLoaded", function() {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',
-                    // Si necesitas autenticación, agrega el token aquí
-                    // 'Authorization': 'Bearer ' + token
+                   
                 }
             });
 
@@ -183,8 +182,8 @@ document.addEventListener("DOMContentLoaded", function() {
                 id_departamento: item.Empleado?.Departamento?.id_departamento ?? '',
                 rol: item.Empleado?.Rol?.nombre ?? 'Sin rol',
                 id_rol: item.Empleado?.Rol?.id_rol ?? '',
-                hora_entrada: item.tipo_evento === 1 ? formatearHora24(item.fecha_hora) : '-', 
-                hora_salida: item.tipo_evento === 2 ? formatearHora24(item.fecha_hora) : '-',  
+                hora_entrada: item.tipo_evento === 1 ? extraerHora(item.fecha_hora) : '-', 
+                hora_salida: item.tipo_evento === 4 ? extraerHora(item.fecha_hora) : '-',  
                 id_evento: item.id_evento ?? null,
                 fecha_hora: item.fecha_hora ?? null,
             }));
@@ -200,6 +199,16 @@ document.addEventListener("DOMContentLoaded", function() {
             showLoading(false);
         }
     }
+
+    //Funcion para cabiar formato ISO a  "HH:mm"
+    function extraerHora(valor) {
+    if (!valor || valor === "1970-01-01T00:00:00.000Z") return "";
+    // Si ya viene en formato "HH:mm:ss" o "HH:mm"
+    if (/^\d{2}:\d{2}(:\d{2})?$/.test(valor)) return valor.substr(0, 5);
+    // Si viene en formato ISO
+    const d = new Date(valor);
+    return d.toISOString().substr(11, 5); // "HH:mm"
+}
 
     // Cargar departamentos y roles 
     async function loadDepartamentosYRoles() {
@@ -297,7 +306,7 @@ document.addEventListener("DOMContentLoaded", function() {
         showLoading(false);
     }
 }
-    // Confirmar eliminación 
+    // Confirmar eliminación (SOLO ESTA PANTALLA TIENE ESTE ESTILO DE MENSAJE)
     async function confirmarEliminacion(idAsistencia) {
         const confirmacion = await Swal.fire({
             title: '¿Estás seguro?',
