@@ -34,24 +34,57 @@ async function obtenerDatosEmpleado() {
     }
 }
 
-function formatearFecha(fechaIso) {
-    if (!fechaIso) return '--';
-    const fecha = new Date(fechaIso);
-    return fecha.toLocaleDateString('es-MX');
+function actualizarTabla() {
+    const inicio = (paginaActual - 1) * filasPorPagina;
+    const fin = inicio + filasPorPagina;
+    const datosPaginados = datosFiltrados.slice(inicio, fin);
+    const tbody = document.querySelector('#tablaAsistencias tbody');
+    tbody.innerHTML = '';
+    if (datosPaginados.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">No se encontraron registros</td></tr>';
+        return;
+    }
+    datosPaginados.forEach(asistencia => {
+    tbody.innerHTML += `
+        <tr>
+            <td>${formatearFecha(asistencia.dia)}</td>
+            <td>${extraerHora(asistencia.horaEntrada)}</td>
+            <td>${extraerHora(asistencia.horaSalida)}</td>
+            <td>${formatearHorasTrabajadas(asistencia.minutosTrabajados)}</td>
+            <td>${asistencia.departamento?.nombre || '--'}</td>
+        </tr>
+    `;
+});
 }
 
-function formatearHora(fechaIso) {
-    if (!fechaIso) return '--:--';
-    const fecha = new Date(fechaIso);
-    return fecha.toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
+// Formatea la hora iso a 24 horas
+function extraerHora(valor) {
+    if (!valor || valor === "1970-01-01T00:00:00.000Z") return "";
+    // Si ya viene en formato "HH:mm:ss" o "HH:mm"
+    if (/^\d{2}:\d{2}(:\d{2})?$/.test(valor)) return valor.substr(0, 5);
+    // Si viene en formato ISO
+    const d = new Date(valor);
+    return d.toISOString().substr(11, 5); // "HH:mm"
 }
-
+// Formatea los minutos trabajados a "HH:mm"
 function formatearHorasTrabajadas(minutos) {
-    if (!minutos || isNaN(minutos)) return '--';
+    if (minutos == null || isNaN(minutos)) return '--';
+    const negativo = minutos < 0;
+    minutos = Math.abs(minutos);
     const horas = Math.floor(minutos / 60);
-    const mins = Math.abs(minutos % 60);
-    return `${horas}h ${mins}m`;
+    const mins = minutos % 60;
+    return (negativo ? '-' : '') + horas + ':' + mins.toString().padStart(2, '0');
 }
+//Formatea la fecha al formato "DD/MM/YYYY"
+function formatearFecha(fechaIso) {
+    if (!fechaIso) return '';
+    const d = new Date(fechaIso);
+    const dia = d.getDate().toString().padStart(2, '0');
+    const mes = (d.getMonth() + 1).toString().padStart(2, '0');
+    const anio = d.getFullYear();
+    return `${dia}/${mes}/${anio}`;
+}
+
 
 function mostrarError(mensaje) {
     const toast = `<div class="toast align-items-center text-white bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
@@ -86,28 +119,7 @@ async function aplicarFiltros() {
     }
 }
 
-function actualizarTabla() {
-    const inicio = (paginaActual - 1) * filasPorPagina;
-    const fin = inicio + filasPorPagina;
-    const datosPaginados = datosFiltrados.slice(inicio, fin);
-    const tbody = document.querySelector('#tablaAsistencias tbody');
-    tbody.innerHTML = '';
-    if (datosPaginados.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4">No se encontraron registros</td></tr>';
-        return;
-    }
-    datosPaginados.forEach(asistencia => {
-        tbody.innerHTML += `
-            <tr>
-                <td>${formatearFecha(asistencia.dia)}</td>
-                <td>${formatearHora(asistencia.horaEntrada)}</td>
-                <td>${formatearHora(asistencia.horaSalida)}</td>
-                <td>${formatearHorasTrabajadas(asistencia.minutosTrabajados)}</td>
-                <td>${asistencia.departamento?.nombre || '--'}</td>
-            </tr>
-        `;
-    });
-}
+
 
 function actualizarPaginacion() {
     const totalPaginas = Math.ceil(datosFiltrados.length / filasPorPagina);
