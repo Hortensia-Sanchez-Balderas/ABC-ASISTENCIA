@@ -16,11 +16,11 @@
             window.location.href = "../Marcador.html";
         }
 
-        console.log({ token });
+        
         
         const decodedToken = jwt_decode(token);
         const userRole = decodedToken.id_rol;
-        console.log({ userRole })
+        
         if (!allowedRole.includes(userRole)) {
             localStorage.removeItem("authToken");
             alert("No tienes permiso para acceder a esta página.");
