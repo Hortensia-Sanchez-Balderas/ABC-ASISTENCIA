@@ -140,6 +140,7 @@ a {
     padding: 10px 15px;
     border-radius: 5px;
     transition: all 0.3s;
+    cursor: pointer;
   }
   
   .nav_link:hover {
@@ -156,6 +157,7 @@ a {
     overflow: hidden;
     transition: max-height 0.3s ease-out;
     padding-left: 20px;
+    color: white;
   }
   
   .submenu_link {
@@ -182,8 +184,12 @@ a {
   .nav_item.active .submenu {
     max-height: 500px; /* Ajusta según necesidad */
   }
+
+  .nav_item ::after {
+    transition: all 0.3s ease;
+  }
   
-  .nav_item.active .dropdown-icon {
+  .nav_item.active ::after {
     transform: rotate(180deg);
   }
   
