@@ -174,19 +174,22 @@ document.addEventListener("DOMContentLoaded", function() {
             }
 
             const data = await response.json();
+
+            allData = procesarEventos(data);
+            console.log({ data, allData })
             
-            allData = data.map(item => ({
-                id_empleado: item.Empleado?.id_empleado ?? '',
-                nombre: item.Empleado?.nombre ?? '',
-                departamento: item.Empleado?.Departamento?.nombre ?? 'Sin departamento',
-                id_departamento: item.Empleado?.Departamento?.id_departamento ?? '',
-                rol: item.Empleado?.Rol?.nombre ?? 'Sin rol',
-                id_rol: item.Empleado?.Rol?.id_rol ?? '',
-                hora_entrada: item.tipo_evento === 1 ? extraerHora(item.fecha_hora) : '-', 
-                hora_salida: item.tipo_evento === 4 ? extraerHora(item.fecha_hora) : '-',  
-                id_evento: item.id_evento ?? null,
-                fecha_hora: item.fecha_hora ?? null,
-            }));
+            // allData = data.map(item => ({
+            //     id_empleado: item.Empleado?.id_empleado ?? '',
+            //     nombre: item.Empleado?.nombre ?? '',
+            //     departamento: item.Empleado?.Departamento?.nombre ?? 'Sin departamento',
+            //     id_departamento: item.Empleado?.Departamento?.id_departamento ?? '',
+            //     rol: item.Empleado?.Rol?.nombre ?? 'Sin rol',
+            //     id_rol: item.Empleado?.Rol?.id_rol ?? '',
+            //     hora_entrada: item.tipo_evento === 1 ? extraerHora(item.fecha_hora) : '-', 
+            //     hora_salida: item.tipo_evento === 4 ? extraerHora(item.fecha_hora) : '-',  
+            //     id_evento: item.id_evento ?? null,
+            //     fecha_hora: item.fecha_hora ?? null,
+            // }));
 
             datosFiltrados = [...allData];
             
@@ -498,3 +501,94 @@ document.addEventListener("DOMContentLoaded", function() {
     // Iniciar la aplicación
     init();
 });
+
+// Función para extraer la hora de una fecha ISO
+function extraerHora(fechaISO) {
+    if (!fechaISO) return '-';
+    const fecha = new Date(fechaISO);
+    fecha.setHours(fecha.getHours() + 6); // Ajuste de 6 horas
+
+    return fecha.toLocaleTimeString('es-ES', { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        hour12: false 
+    });
+}
+
+// Función principal para procesar los eventos
+function procesarEventos(eventos) {
+    // 1. Ordenar por id_empleado y luego por fecha
+    const eventosOrdenados = eventos.sort((a, b) => {
+        // Primero por id_empleado
+        const empleadoA = a.Empleado?.id_empleado || 0;
+        const empleadoB = b.Empleado?.id_empleado || 0;
+        
+        if (empleadoA !== empleadoB) {
+            return empleadoA - empleadoB;
+        }
+        
+        // Luego por fecha
+        const fechaA = new Date(a.fecha_hora);
+        const fechaB = new Date(b.fecha_hora);
+        return fechaA - fechaB;
+    });
+    
+    // 2. Agrupar eventos por empleado y fecha (día)
+    const grupos = {};
+    
+    eventosOrdenados.forEach(evento => {
+        const idEmpleado = evento.Empleado?.id_empleado;
+        const fecha = new Date(evento.fecha_hora);
+        const fechaKey = fecha.toISOString().split('T')[0]; // Solo la fecha (YYYY-MM-DD)
+        
+        const key = `${idEmpleado}-${fechaKey}`;
+        
+        if (!grupos[key]) {
+            grupos[key] = {
+                empleado: evento.Empleado,
+                fecha: fechaKey,
+                eventos: []
+            };
+        }
+        
+        grupos[key].eventos.push(evento);
+    });
+    
+    // 3. Procesar cada grupo para crear los objetos finales
+    const resultado = [];
+    
+    Object.values(grupos).forEach(grupo => {
+        // Buscar eventos de entrada (tipo 1) y salida (tipo 4)
+        const entradas = grupo.eventos.filter(e => e.tipo_evento === 1);
+        const salidas = grupo.eventos.filter(e => e.tipo_evento === 4);
+        
+        // Si hay entradas y salidas, emparejarlas
+        const maxPares = Math.max(entradas.length, salidas.length);
+        
+        for (let i = 0; i < maxPares; i++) {
+            const entrada = entradas[i];
+            const salida = salidas[i];
+            
+            // Usar la entrada como base, o la salida si no hay entrada
+            const eventoBase = entrada || salida;
+            
+            const objeto = {
+                id_empleado: eventoBase.Empleado?.id_empleado ?? '',
+                nombre: eventoBase.Empleado?.nombre ?? '',
+                departamento: eventoBase.Empleado?.Departamento?.nombre ?? 'Sin departamento',
+                id_departamento: eventoBase.Empleado?.Departamento?.id_departamento ?? '',
+                rol: eventoBase.Empleado?.Rol?.nombre ?? 'Sin rol',
+                id_rol: eventoBase.Empleado?.Rol?.id_rol ?? '',
+                hora_entrada: entrada ? extraerHora(entrada.fecha_hora) : '-',
+                hora_salida: salida ? extraerHora(salida.fecha_hora) : '-',
+                id_evento: eventoBase.id_evento ?? null,
+                fecha_hora: eventoBase.fecha_hora ?? null,
+                fecha: grupo.fecha
+            };
+            
+            resultado.push(objeto);
+        }
+    });
+    
+    return resultado;
+}
