@@ -224,12 +224,18 @@ async function manejarEliminarUsuario(idUsuario) {
 }
 // -------------------------------------------------------Función para mostrar el modal de agregar usuario
 // Función para mostrar el modal de agregar usuario
-function mostrarModalAgregarUsuario() {
-  document.getElementById('idUsuario').value = '';
+async function mostrarModalAgregarUsuario() {
+  // document.getElementById('idUsuario').value = "8";
+  console.log("Se activa fn")
   document.getElementById('modalAgregarUsuarioLabel').textContent = 'Agregar Nuevo Usuario';
   document.getElementById('formAgregarUsuario').reset();
   horariosTemporales = [];
   actualizarTablaHorarios('tablaHorarios');
+
+
+  const siguienteId = await (await fetch(`${apiPath}/empleados/siguienteId`)).json();
+
+  document.getElementById('idUsuario').value = siguienteId || '--';
   
   const modal = new bootstrap.Modal(document.getElementById('modalAgregarUsuario'));
   modal.show();
@@ -291,6 +297,7 @@ async function guardarUsuario() {
 
 // ---------------------------------------------------Función para mostrar el modal de edición---------------------------------------
 function mostrarModalEditarUsuario(usuario) {
+    console.log(usuario);
     // Rellena los campos del modal con los datos del usuario
     document.getElementById('editarIdUsuario').value = usuario.idUsuario;
     document.getElementById('editarNombreUsuario').value = usuario.nombre;
@@ -369,12 +376,13 @@ async function guardarEdicionUsuario() {
 // Función para manejar la edición de usuario
 function manejarEditarUsuario(idUsuario) {
     const usuarioExistente = usuariosCompletos.find(u => u.idUsuario == idUsuario);
-    
+    console.log({ usuarioExistente });
     if (usuarioExistente) {
         // Crear objeto para editar
         const usuarioParaEditar = {
             idUsuario: usuarioExistente.idUsuario,
             nombre: usuarioExistente.nombre,
+            idRol: usuarioExistente.idRol,
             idDepartamento: usuarioExistente.idDepartamento,
             horarios: usuarioExistente.horarios || []
         };
@@ -550,7 +558,30 @@ function actualizarTablaHorarios(tablaId) {
 }
 
 function eliminarHorarioTemporal(idDia, tablaId) {
-  horariosTemporales = horariosTemporales.filter(h => h.idDia !== idDia);
+  debugger;
+  // horariosTemporales = horariosTemporales.filter(h => h.idDia !== idDia);
+  // horariosTemporales = horariosTemporales.filter(h => {
+  //   console.log(`Comparando: ${h.idDia} con ${idDia}`);
+  //   console.log( `Resultado: ${h.idDia != idDia}`);
+  //   return h.idDia != idDia
+  // });
+  console.log({ horariosTemporales })
+
+  horariosTemporales = horariosTemporales.map(h => {
+    if(+h.idDia === +idDia) {
+      return {
+        ...h,
+        horaEntrada: '',
+        horaSalida: '',
+        laborable: false
+      };
+    }
+    return h;
+  })
+
+  console.log({ horariosTemporales })
+  debugger;
+
   actualizarTablaHorarios(tablaId);
 }
 

@@ -71,7 +71,8 @@ async function iniciarSesion() {
 
     } catch (error) {
         console.error('Error en el login:', error);
-        alert(`Error al iniciar sesión: ${error.message}`);
+        alert(`Error al iniciar sesión: Usuario o contraseña incorrectos.`);
+        console.log('Detalles del error:', error);
     } finally {
         // Restaurar estado del botón
         const loginButton = document.querySelector('.button');

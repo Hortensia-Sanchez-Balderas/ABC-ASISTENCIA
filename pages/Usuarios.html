@@ -16,11 +16,11 @@
             window.location.href = "../Marcador.html";
         }
 
-        console.log({ token });
+        
         
         const decodedToken = jwt_decode(token);
         const userRole = decodedToken.id_rol;
-        console.log({ userRole })
+        
         if (!allowedRole.includes(userRole)) {
             localStorage.removeItem("authToken");
             alert("No tienes permiso para acceder a esta página.");
@@ -80,7 +80,7 @@
                                 <div class="nav_link active dropdown-toggle">
                                   <i class="bi bi-box-arrow-in-right nav_icon"></i>
                                   <span class="nav_name">Acceso</span>
-                                  <i class="bi bi-chevron-down dropdown-icon"></i>
+                                  
                                 </div>
                                 <div class="submenu">
                                   <a href="../pages/Usuarios.html" class="submenu_link ">
@@ -98,7 +98,7 @@
                                 <div class="nav_link dropdown-toggle">
                                   <i class="bi bi-pass nav_icon"></i>
                                   <span class="nav_name">Asistencias</span>
-                                  <i class="bi bi-chevron-down dropdown-icon"></i>
+                                  
                                 </div>
                                 <div class="submenu">
                                   <a href="../pages/ListaAsistencia.html" class="submenu_link ">
@@ -170,7 +170,7 @@
 							<table class="table table-hover mb-0" id="tablaUsuarios">
 								<thead class="bg-primary text-white">
 									<tr>
-										<th>ID Usuario</th>
+										<th>ID Usuario (sólo lectura)</th>
 										<th>Nombre</th>
                     <th>Departamento</th>
                     <th>Tipo de Usuario</th>
@@ -234,7 +234,7 @@
             <!-- Datos básicos del usuario -->
             <div class="row mb-4">
               <div class="col-md-6 mb-3">
-                <label for="idUsuario" class="form-label">ID Usuario</label>
+                <label for="idUsuario" class="form-label">ID Usuario (sólo lectura)</label>
                 <input type="text" class="form-control" id="idUsuario" disabled>
               </div>
               <div class="col-md-6 mb-3">
@@ -338,14 +338,18 @@
                 </div>
                 <div class="modal-body">
                     <form id="formEditarUsuario">
-                        <input type="hidden" id="editarIdUsuario">
+                        <!-- <input type="hidden" id="editarIdUsuario"> -->
                         
                         <div class="row mb-4">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
+                                <label for="editarIdUsuario" class="form-label">ID Usuario (sólo lectura)</label>
+                                <input type="text" class="form-control" id="editarIdUsuario" disabled>
+                            </div>
+                            <div class="col-md-4 mb-3">
                                 <label for="editarNombreUsuario" class="form-label">Nombre Completo</label>
                                 <input type="text" class="form-control" id="editarNombreUsuario" required>
                             </div>
-                            <div class="col-md-6 mb-3">
+                            <div class="col-md-4 mb-3">
                                 <label for="editarDepartamentoUsuario" class="form-label">Departamento</label>
                                 <select class="form-select" id="editarDepartamentoUsuario" required>
                                     <option value="" disabled>Seleccione un departamento</option>

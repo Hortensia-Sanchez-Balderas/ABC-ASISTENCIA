@@ -16,11 +16,11 @@
             window.location.href = "../Marcador.html";
         }
 
-        console.log({ token });
+        
         
         const decodedToken = jwt_decode(token);
         const userRole = decodedToken.id_rol;
-        console.log({ userRole })
+        
         if (!allowedRole.includes(userRole)) {
             localStorage.removeItem("authToken");
             alert("No tienes permiso para acceder a esta página.");
@@ -82,7 +82,7 @@
 							<div class="nav_link dropdown-toggle ">
 							  <i class="bi bi-pass nav_icon"></i>
 							  <span class="nav_name">Asistencias</span>
-							  <i class="bi bi-chevron-down dropdown-icon"></i>
+							  
 							</div>
 							<div class="submenu ">
 							  <a href="../pages/HistorialAsistenciaEmpleado.html" class="submenu_link ">
